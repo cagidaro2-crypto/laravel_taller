@@ -30,6 +30,12 @@ class InventarioController extends Controller
         return view('admin.inventario.index', compact('inventario', 'bajoStock'));
     }
 
+    public function edit(Inventario $inventario)
+    {
+        $inventario->load('producto.categoria');
+        return view('admin.inventario.edit', compact('inventario'));
+    }
+
     public function update(Request $request, Inventario $inventario)
     {
         $request->validate([

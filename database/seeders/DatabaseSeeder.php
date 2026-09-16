@@ -18,9 +18,11 @@ class DatabaseSeeder extends Seeder
         // ── 2. Estados de Órdenes de Trabajo ─────────────────────
         DB::table('estados_ot')->insert([
             ['nombre' => 'Pendiente',    'descripcion' => 'Orden recién creada',        'created_at' => now(), 'updated_at' => now()],
-            ['nombre' => 'En Progreso',  'descripcion' => 'Trabajo en curso',           'created_at' => now(), 'updated_at' => now()],
-            ['nombre' => 'Completada',   'descripcion' => 'Trabajo terminado',          'created_at' => now(), 'updated_at' => now()],
-            ['nombre' => 'Cancelada',    'descripcion' => 'Orden cancelada',            'created_at' => now(), 'updated_at' => now()],
+            ['nombre' => 'En proceso',   'descripcion' => 'Trabajo en curso',           'created_at' => now(), 'updated_at' => now()],
+            ['nombre' => 'En espera',    'descripcion' => 'Trabajo detenido temporalmente', 'created_at' => now(), 'updated_at' => now()],
+            ['nombre' => 'Terminado',    'descripcion' => 'Trabajo finalizado',         'created_at' => now(), 'updated_at' => now()],
+            ['nombre' => 'Entregado',    'descripcion' => 'Vehículo entregado al cliente', 'created_at' => now(), 'updated_at' => now()],
+            ['nombre' => 'Cancelado',    'descripcion' => 'Orden cancelada',            'created_at' => now(), 'updated_at' => now()],
         ]);
 
         // ── 3. Usuarios ───────────────────────────────────────────

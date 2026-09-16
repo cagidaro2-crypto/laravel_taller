@@ -58,4 +58,5 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:Administrador'
     Route::get('reportes/productividad', [ReporteController::class, 'productividad'])->name('reportes.productividad');
     Route::get('reportes/ingresos', [ReporteController::class, 'ingresos'])->name('reportes.ingresos');
     Route::get('reportes/consumo', [ReporteController::class, 'consumo'])->name('reportes.consumo');
+    Route::get('reportes/exportar', [ReporteController::class, 'exportarCSV'])->name('reportes.exportar');
 });

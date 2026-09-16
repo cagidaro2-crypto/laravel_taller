@@ -52,6 +52,11 @@ class VehiculoController extends Controller
         // Estado por defecto — id del estado "Ingresado" o similar
         $estadoDefault = \App\Models\Tecnico\EstadoVehiculo::first();
 
+        if (!$estadoDefault) {
+            return redirect()->back()
+                ->withErrors(['error' => 'No hay estados de vehículo configurados en el sistema. Comunícate con el administrador.']);
+        }
+
         Vehiculo::create([
             'id_cliente' => $this->clienteId(),
             'id_estado'  => $estadoDefault->id_estado,
@@ -95,4 +100,46 @@ class VehiculoController extends Controller
 
         return back()->with('success', 'Fotografía subida exitosamente.');
     }
-}
+
+    public function edit(Vehiculo $vehiculo)
+    {
+        // Solo el dueño puede editar su vehículo
+        abort_if($vehiculo->id_cliente !== $this->clienteId(), 403);
+
+        return view('cliente.vehiculos.edit', compact('vehiculo'));
+    }
+
+    public function update(Request $request, Vehiculo $vehiculo)
+    {
+        // Solo el dueño puede actualizar su vehículo
+        abort_if($vehiculo->id_cliente !== $this->clienteId(), 403);
+
+        $request->validate([
+            'placa'  => 'required|string|max:20|regex:/^[A-Z]{3}-[0-9]{3}$/|unique:vehiculos,placa,' . $vehiculo->id_vehiculo . ',id_vehiculo',
+            'marca'  => 'required|string|max:80',
+            'modelo' => 'required|string|max:80',
+            'anio'   => 'nullable|digits:4|integer|min:1900|max:' . (date('Y') + 1),
+            'color'  => 'nullable|string|max:50',
+            'tipo'   => 'nullable|string|max:50',
+            'vin'    => 'nullable|string|max:50',
+        ], [
+            'placa.required' => 'Debe completar todos los campos obligatorios.',
+            'placa.unique'   => 'La placa ingresada ya está registrada en el sistema.',
+            'placa.regex'    => 'El formato de la placa no es válido. Use el formato: ABC-123.',
+            'marca.required' => 'Debe completar todos los campos obligatorios.',
+            'modelo.required'=> 'Debe completar todos los campos obligatorios.',
+        ]);
+
+        $vehiculo->update([
+            'placa'  => strtoupper($request->placa),
+            'marca'  => $request->marca,
+            'modelo' => $request->modelo,
+            'anio'   => $request->anio,
+            'color'  => $request->color,
+            'tipo'   => $request->tipo,
+            'vin'    => $request->vin,
+        ]);
+
+        return redirect()->route('cliente.vehiculos.show', $vehiculo)
+            ->with('success', 'Vehículo actualizado exitosamente.');
+    }

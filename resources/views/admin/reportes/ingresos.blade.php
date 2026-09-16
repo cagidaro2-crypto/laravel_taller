@@ -2,8 +2,14 @@
 @section('title','Reporte de Ingresos')
 
 @section('content')
-<div class="mb-6">
+<div class="mb-6 flex justify-between items-center">
     <a href="{{ route('admin.reportes.index') }}" class="text-slate-600 hover:text-slate-800 text-sm font-medium">← Volver</a>
+    
+    @if(!$sinDatos)
+        <a href="{{ route('admin.reportes.exportar', ['tipo' => 'ingresos', 'fecha_desde' => $request->fecha_desde, 'fecha_hasta' => $request->fecha_hasta]) }}" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 font-semibold text-sm">
+            📊 Descargar CSV
+        </a>
+    @endif
 </div>
 
 <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 mb-6">

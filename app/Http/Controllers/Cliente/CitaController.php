@@ -53,7 +53,7 @@ class CitaController extends Controller
         // TDLP-020 escenario 2: horario ocupado
         $ocupado = Cita::where('fecha', $request->fecha)
             ->where('hora', $request->hora)
-            ->whereNotIn('estado', ['Cancelada'])
+            ->whereNotIn('estado', ['Cancelado'])
             ->exists();
 
         if ($ocupado) {
@@ -88,7 +88,7 @@ class CitaController extends Controller
     {
         abort_if($cita->id_cliente !== $this->clienteId(), 403);
 
-        $cita->update(['estado' => 'Cancelada']);
+        $cita->update(['estado' => 'Cancelado']);
 
         return redirect()->route('cliente.citas.index')
             ->with('success', 'Tu cita ha sido cancelada. El taller ha sido notificado del cambio.');

@@ -13,12 +13,12 @@ class DashboardController extends Controller
     public function index()
     {
         $totalOrdenes  = OrdenTrabajo::whereHas('estado', fn($q) =>
-            $q->whereNotIn('nombre', ['Completada', 'Cancelada'])
+            $q->whereNotIn('nombre', ['Terminado', 'Entregado', 'Cancelado'])
         )->count();
         $totalClientes = Cliente::count();
         $bajosStock    = Inventario::whereRaw('cantidad <= stock_minimo')->count();
         $citasHoy      = Cita::whereDate('fecha', today())
-            ->where('estado', '!=', 'Cancelada')
+            ->where('estado', '!=', 'Cancelado')
             ->count();
 
         return view('admin.dashboard', compact('totalOrdenes', 'totalClientes', 'bajosStock', 'citasHoy'));

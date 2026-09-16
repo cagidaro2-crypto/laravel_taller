@@ -14,16 +14,16 @@ class DashboardController extends Controller
     {
         $misOrdenes = OrdenTrabajo::where('id_usuario', Auth::id())
             ->whereHas('estado', fn($q) =>
-                $q->whereNotIn('nombre', ['Completada', 'Cancelada'])
+                $q->whereNotIn('nombre', ['Terminado', 'Entregado', 'Cancelado'])
             )->count();
 
         $citasHoy = Cita::whereDate('fecha', today())
-            ->where('estado', '!=', 'Cancelada')
+            ->where('estado', '!=', 'Cancelado')
             ->count();
 
         $vehiculosEnTaller = Vehiculo::whereHas('ordenesTrabajo', fn($q) =>
             $q->whereHas('estado', fn($q2) =>
-                $q2->whereNotIn('nombre', ['Completada', 'Cancelada'])
+                $q2->whereNotIn('nombre', ['Terminado', 'Entregado', 'Cancelado'])
             )
         )->count();
 

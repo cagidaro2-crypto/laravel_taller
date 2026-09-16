@@ -28,7 +28,7 @@ class DashboardController extends Controller
 
         $misVehiculos           = Vehiculo::where('id_cliente', $clienteId)->count();
         $misCitas               = Cita::where('id_cliente', $clienteId)
-            ->where('estado', '!=', 'Cancelada')
+            ->where('estado', '!=', 'Cancelado')
             ->count();
         $cotizacionesPendientes = Cotizacion::where('id_cliente', $clienteId)
             ->where('estado', 'Pendiente')

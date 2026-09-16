@@ -13,7 +13,7 @@ Route::prefix('cliente')->name('cliente.')->middleware(['auth', 'role:Cliente'])
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // RF-17 al RF-20, RF-25, RF-26: Vehículos
-    Route::resource('vehiculos', VehiculoController::class)->only(['index', 'create', 'store', 'show']);
+    Route::resource('vehiculos', VehiculoController::class)->only(['index', 'create', 'store', 'show', 'edit', 'update']);
     Route::post('vehiculos/{vehiculo}/foto', [VehiculoController::class, 'subirFoto'])->name('vehiculos.foto');
 
     // RF-43 al RF-45: Cotizaciones
