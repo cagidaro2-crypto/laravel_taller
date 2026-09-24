@@ -28,10 +28,10 @@
                     </span>
                 </div>
 
-                @if($cotizacione->descripcion)
+                @if($cotizacione->observaciones)
                     <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                        <p class="text-sm text-slate-600 uppercase tracking-wide font-semibold mb-2">Descripción</p>
-                        <p class="text-slate-900">{{ $cotizacione->descripcion }}</p>
+                        <p class="text-sm text-slate-600 uppercase tracking-wide font-semibold mb-2">Observaciones</p>
+                        <p class="text-slate-900">{{ $cotizacione->observaciones }}</p>
                     </div>
                 @endif
 
@@ -62,7 +62,10 @@
                                     @endif
                                 </div>
                                 <div class="text-right">
-                                    <p class="font-bold text-slate-900">${{ number_format($item->valor_unitario, 2, '.', ',') }}</p>
+                                    <p class="font-bold text-slate-900">${{ number_format($item->precio, 2, '.', ',') }}</p>
+                                    @if($item->cantidad > 1)
+                                        <p class="text-xs text-slate-500">Cant: {{ $item->cantidad }} (${{ number_format($item->subtotal, 2, '.', ',') }})</p>
+                                    @endif
                                 </div>
                             </div>
                         @endforeach
@@ -85,8 +88,8 @@
                                     @endif
                                 </div>
                                 <div class="text-right ml-4">
-                                    <p class="font-semibold text-slate-900">${{ number_format($item->valor_unitario, 2, '.', ',') }} c/u</p>
-                                    <p class="text-slate-600 text-sm">Subtotal: ${{ number_format($item->valor_unitario * $item->cantidad, 2, '.', ',') }}</p>
+                                    <p class="font-semibold text-slate-900">${{ number_format($item->precio_unitario, 2, '.', ',') }} c/u</p>
+                                    <p class="text-slate-600 text-sm">Subtotal: ${{ number_format($item->subtotal, 2, '.', ',') }}</p>
                                 </div>
                             </div>
                         @endforeach
@@ -100,17 +103,15 @@
                 <div class="space-y-3">
                     <div class="flex items-center justify-between">
                         <p class="text-slate-700">Subtotal:</p>
-                        <p class="font-semibold text-slate-900">${{ number_format(($cotizacione->monto_total ?? 0) * 0.9, 2, '.', ',') }}</p>
+                        <p class="font-semibold text-slate-900">${{ number_format($cotizacione->subtotal, 2, '.', ',') }}</p>
                     </div>
-                    @if($cotizacione->descuento)
-                        <div class="flex items-center justify-between text-green-700">
-                            <p>Descuento:</p>
-                            <p class="font-semibold">-${{ number_format($cotizacione->descuento, 2, '.', ',') }}</p>
-                        </div>
-                    @endif
+                    <div class="flex items-center justify-between">
+                        <p class="text-slate-700">Impuesto (19% IVA):</p>
+                        <p class="font-semibold text-slate-900">${{ number_format($cotizacione->impuesto, 2, '.', ',') }}</p>
+                    </div>
                     <div class="border-t-2 border-orange-300 pt-3 flex items-center justify-between">
                         <p class="text-lg font-bold text-slate-900">Total:</p>
-                        <p class="text-2xl font-bold text-orange-700">${{ number_format($cotizacione->monto_total ?? 0, 2, '.', ',') }}</p>
+                        <p class="text-2xl font-bold text-orange-700">${{ number_format($cotizacione->total, 2, '.', ',') }}</p>
                     </div>
                 </div>
             </div>
@@ -162,14 +163,14 @@
                     @if($cotizacione->estado === 'Pendiente')
                         <form action="{{ route('cliente.cotizaciones.aprobar', $cotizacione) }}" method="POST">
                             @csrf
-                            @method('PUT')
+                            @method('PATCH')
                             <button type="submit" class="w-full text-center bg-green-500 text-white px-4 py-2.5 rounded-lg hover:bg-green-600 font-semibold transition">
                                 Aprobar Cotización
                             </button>
                         </form>
                         <form action="{{ route('cliente.cotizaciones.rechazar', $cotizacione) }}" method="POST">
                             @csrf
-                            @method('PUT')
+                            @method('PATCH')
                             <button type="submit" class="w-full text-center bg-red-500 text-white px-4 py-2.5 rounded-lg hover:bg-red-600 font-semibold transition" onclick="return confirm('¿Estás seguro de que deseas rechazar esta cotización?');">
                                 Rechazar Cotización
                             </button>

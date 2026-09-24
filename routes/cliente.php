@@ -7,6 +7,7 @@ use App\Http\Controllers\Cliente\CotizacionController;
 use App\Http\Controllers\Cliente\HistorialVehiculoController;
 use App\Http\Controllers\Cliente\CitaController;
 use App\Http\Controllers\Cliente\NotificacionController;
+use App\Http\Controllers\Cliente\FacturaController;
 
 Route::prefix('cliente')->name('cliente.')->middleware(['auth', 'role:Cliente'])->group(function () {
 
@@ -25,14 +26,19 @@ Route::prefix('cliente')->name('cliente.')->middleware(['auth', 'role:Cliente'])
 
     // RF-43 al RF-45: Cotizaciones
     Route::resource('cotizaciones', CotizacionController::class)->only(['index', 'show']);
-    Route::patch('cotizaciones/{cotizacione}/aprobar', [CotizacionController::class, 'aprobar'])->name('cotizaciones.aprobar');
-    Route::patch('cotizaciones/{cotizacione}/rechazar', [CotizacionController::class, 'rechazar'])->name('cotizaciones.rechazar');
+    Route::match(['patch', 'put'], 'cotizaciones/{cotizacione}/aprobar', [CotizacionController::class, 'aprobar'])->name('cotizaciones.aprobar');
+    Route::match(['patch', 'put'], 'cotizaciones/{cotizacione}/rechazar', [CotizacionController::class, 'rechazar'])->name('cotizaciones.rechazar');
+
+    // RF-58 al RF-64: Facturas
+    Route::get('facturas', [FacturaController::class, 'index'])->name('facturas.index');
+    Route::get('facturas/{factura}', [FacturaController::class, 'show'])->name('facturas.show');
+    Route::get('facturas/{factura}/pdf', [FacturaController::class, 'pdf'])->name('facturas.pdf');
 
     // RF-20: Historial
     Route::resource('historial', HistorialVehiculoController::class)->only(['index', 'show']);
 
     // RF-29 al RF-33: Citas
     Route::resource('citas', CitaController::class)->only(['index', 'create', 'store', 'show']);
-    Route::patch('citas/{cita}/cancelar', [CitaController::class, 'cancelar'])->name('citas.cancelar');
+    Route::match(['patch', 'put'], 'citas/{cita}/cancelar', [CitaController::class, 'cancelar'])->name('citas.cancelar');
 });
 

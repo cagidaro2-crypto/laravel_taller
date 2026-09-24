@@ -181,5 +181,75 @@ class OrdenTrabajoController extends Controller
 
         return $mensajes[$estado] ?? "Tu vehículo está: {$estado}";
     }
+
+    /**
+     * Generar factura para el cliente a partir de la orden de trabajo
+     */
+    public function generarFactura(OrdenTrabajo $ordene)
+    {
+        if ($ordene->factura) {
+            return back()->with('info', "Esta orden ya tiene una factura generada (#{$ordene->factura->numero_factura}).");
+        }
+
+        $ordene->load(['vehiculo.cliente.usuario', 'servicios', 'productos', 'consumoMateriales']);
+
+        $cliente = $ordene->vehiculo?->cliente;
+        if (!$cliente) {
+            return back()->with('error', 'El vehículo de esta orden no tiene un cliente asignado.');
+        }
+
+        $totalServicios = (float) $ordene->servicios->sum('subtotal');
+        $totalProductos = (float) $ordene->productos->sum('subtotal');
+        $totalMateriales = (float) $ordene->consumoMateriales->sum('subtotal');
+        $subtotal = $totalServicios + $totalProductos + $totalMateriales;
+
+        if ($subtotal <= 0 && $ordene->subtotal > 0) {
+            $subtotal = (float) $ordene->subtotal;
+        } elseif ($subtotal <= 0 && $ordene->total > 0) {
+            $subtotal = round((float) $ordene->total / 1.19, 2);
+        }
+
+        $impuesto = round($subtotal * 0.19, 2);
+        $total = $subtotal + $impuesto;
+
+        $factura = DB::transaction(function () use ($ordene, $cliente, $subtotal, $impuesto, $total) {
+            $numero = 'F-' . str_pad(\App\Models\Admin\Factura::count() + 1, 6, '0', STR_PAD_LEFT);
+
+            $factura = \App\Models\Admin\Factura::create([
+                'id_cliente'     => $cliente->id_cliente,
+                'id_orden'       => $ordene->id_orden,
+                'numero_factura' => $numero,
+                'fecha'          => now()->toDateString(),
+                'subtotal'       => $subtotal,
+                'impuesto'       => $impuesto,
+                'total'          => $total,
+                'estado'         => 'Pendiente',
+            ]);
+
+            if ($ordene->total <= 0) {
+                $ordene->update([
+                    'subtotal' => $subtotal,
+                    'impuesto' => $impuesto,
+                    'total'    => $total,
+                ]);
+            }
+
+            if ($cliente->id_usuario) {
+                Notificacion::create([
+                    'id_usuario_destinatario' => $cliente->id_usuario,
+                    'id_orden'               => $ordene->id_orden,
+                    'id_vehiculo'            => $ordene->id_vehiculo,
+                    'tipo'                   => 'factura_generada',
+                    'titulo'                 => "Factura Generada #{$numero}",
+                    'descripcion'            => "El empleado ha generado la factura {$numero} por un valor de $" . number_format($total, 2) . " para tu vehículo {$ordene->vehiculo->placa}. Ya puedes consultarla y descargarla en PDF desde tu portal.",
+                    'leida'                  => false,
+                ]);
+            }
+
+            return $factura;
+        });
+
+        return back()->with('success', "Factura {$factura->numero_factura} generada exitosamente para el cliente.");
+    }
 }
 

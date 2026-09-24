@@ -78,7 +78,7 @@
                                     {{ $cita->fecha->format('d/m/Y') }}
                                 </p>
                                 <p class="text-slate-700 font-semibold">
-                                    {{ \Carbon\Carbon::createFromFormat('H:i:s', $cita->hora)->format('H:i') }}
+                                    {{ date('h:i A', strtotime($cita->hora)) }}
                                 </p>
                                 
                                 @if($cita->observaciones)
@@ -96,7 +96,7 @@
                                 @if($cita->estado !== 'Completado' && $cita->estado !== 'Cancelado')
                                     <form action="{{ route('cliente.citas.cancelar', $cita) }}" method="POST" onsubmit="return confirm('¿Estás seguro de que deseas cancelar esta cita?');" class="w-full">
                                         @csrf
-                                        @method('PUT')
+                                        @method('PATCH')
                                         <button type="submit" class="w-full text-center bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 font-semibold transition text-sm">
                                             Cancelar
                                         </button>

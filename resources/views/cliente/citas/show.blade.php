@@ -33,7 +33,7 @@
                     </div>
                     <div>
                         <p class="text-sm text-slate-600 uppercase tracking-wide font-semibold mb-2">Hora</p>
-                        <p class="text-2xl font-bold text-slate-900">{{ \Carbon\Carbon::createFromFormat('H:i:s', $cita->hora)->format('H:i') }}</p>
+                        <p class="text-2xl font-bold text-slate-900">{{ date('h:i A', strtotime($cita->hora)) }}</p>
                     </div>
                 </div>
 
@@ -62,7 +62,7 @@
                         </div>
                         <div>
                             <p class="font-bold text-slate-900 text-lg">{{ $cita->usuario->nombre }}</p>
-                            <p class="text-slate-600">{{ $cita->usuario->email }}</p>
+                            <p class="text-slate-600">{{ $cita->usuario->correo }}</p>
                             @if($cita->usuario->telefono)
                                 <p class="text-slate-600 text-sm">{{ $cita->usuario->telefono }}</p>
                             @endif
@@ -123,7 +123,7 @@
                     @if($cita->estado !== 'Completado' && $cita->estado !== 'Cancelado')
                         <form action="{{ route('cliente.citas.cancelar', $cita) }}" method="POST" onsubmit="return confirm('¿Estás seguro de que deseas cancelar esta cita?');">
                             @csrf
-                            @method('PUT')
+                            @method('PATCH')
                             <button type="submit" class="w-full text-center bg-red-500 text-white px-4 py-2.5 rounded-lg hover:bg-red-600 font-semibold transition">
                                 Cancelar Cita
                             </button>

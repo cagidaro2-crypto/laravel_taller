@@ -73,7 +73,19 @@ class FacturaController extends Controller
     // RF-61: Descargar / ver factura como PDF imprimible
     public function pdf(Factura $factura)
     {
-        $factura->load(['cliente.usuario', 'orden.servicios.servicio', 'orden.productos.producto', 'pagos']);
-        return view('admin.facturas.pdf', compact('factura'));
+        $factura->load([
+            'cliente.usuario',
+            'orden.vehiculo',
+            'orden.servicios.servicio',
+            'orden.productos.producto',
+            'orden.consumoMateriales.producto',
+            'cotizacion.vehiculo',
+            'cotizacion.servicios.servicio',
+            'cotizacion.productos.producto',
+            'pagos'
+        ]);
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('facturas.pdf_template', compact('factura'));
+        return $pdf->download("Factura_{$factura->numero_factura}.pdf");
     }
 }
