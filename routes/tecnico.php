@@ -8,6 +8,7 @@ use App\Http\Controllers\Tecnico\ConsumoMaterialController;
 use App\Http\Controllers\Tecnico\VehiculoController;
 use App\Http\Controllers\Tecnico\HistorialVehiculoController;
 use App\Http\Controllers\Tecnico\VentaController;
+use App\Http\Controllers\Tecnico\FacturaController;
 
 Route::prefix('tecnico')->name('tecnico.')->middleware(['auth', 'role:Técnico,Empleado'])->group(function () {
 
@@ -21,6 +22,11 @@ Route::prefix('tecnico')->name('tecnico.')->middleware(['auth', 'role:Técnico,E
     Route::resource('ordenes', OrdenTrabajoController::class)->only(['index', 'show']);
     Route::patch('ordenes/{ordene}/estado', [OrdenTrabajoController::class, 'actualizarEstado'])->name('ordenes.estado');
     Route::patch('ordenes/{ordene}/estado-vehiculo', [OrdenTrabajoController::class, 'actualizarEstadoVehiculo'])->name('ordenes.estado-vehiculo');
+    Route::post('ordenes/{ordene}/factura', [OrdenTrabajoController::class, 'generarFactura'])->name('ordenes.factura');
+
+    // RF-58 al RF-64: Facturas
+    Route::resource('facturas', FacturaController::class)->only(['index', 'create', 'store', 'show']);
+    Route::get('facturas/{factura}/pdf', [FacturaController::class, 'pdf'])->name('facturas.pdf');
 
     // RF-XX: Consumo de Materiales
     Route::get('ordenes/{ordene}/materiales', [ConsumoMaterialController::class, 'show'])->name('consumo-materiales.show');

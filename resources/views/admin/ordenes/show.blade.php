@@ -5,6 +5,18 @@
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h5 class="fw-bold mb-0">Orden de trabajo #{{ $ordene->id_orden }}</h5>
     <div class="d-flex gap-2">
+        @if($ordene->factura)
+            <a href="{{ route('admin.facturas.show', $ordene->factura) }}" class="btn btn-sm btn-outline-success">
+                Factura ({{ $ordene->factura->numero_factura }})
+            </a>
+        @else
+            <form action="{{ route('admin.ordenes.factura', $ordene) }}" method="POST" onsubmit="return confirm('¿Deseas generar la factura para esta orden?');">
+                @csrf
+                <button type="submit" class="btn btn-sm btn-success">
+                    Generar Factura
+                </button>
+            </form>
+        @endif
         <a href="{{ route('admin.ordenes.edit', $ordene) }}" class="btn btn-sm btn-outline-primary">Editar</a>
         <a href="{{ route('admin.ordenes.index') }}" class="btn btn-sm btn-outline-secondary">← Volver</a>
     </div>

@@ -38,6 +38,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:Administrador'
 
     // RF-49 al RF-57: Órdenes de trabajo
     Route::resource('ordenes', OrdenTrabajoController::class)->except(['destroy']);
+    Route::post('ordenes/{ordene}/factura', [OrdenTrabajoController::class, 'generarFactura'])->name('ordenes.factura');
 
     // RF-39 al RF-48: Cotizaciones
     Route::resource('cotizaciones', CotizacionController::class)->except(['destroy']);

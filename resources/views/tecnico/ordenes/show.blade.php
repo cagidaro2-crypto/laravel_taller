@@ -7,7 +7,25 @@
             <h1 class="text-3xl font-bold text-slate-900">Orden #{{ $ordene->id_orden }}</h1>
             <p class="text-slate-600 mt-2">Detalles de la orden de trabajo</p>
         </div>
-        <a href="{{ route('tecnico.ordenes.index') }}" class="bg-slate-500 text-white px-4 py-2 rounded-lg hover:bg-slate-600">Volver</a>
+        <div class="flex items-center gap-2">
+            @if($ordene->factura)
+                <a href="{{ route('tecnico.facturas.show', $ordene->factura) }}" 
+                   class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    Factura ({{ $ordene->factura->numero_factura }})
+                </a>
+            @else
+                <form action="{{ route('tecnico.ordenes.factura', $ordene) }}" method="POST" onsubmit="return confirm('¿Deseas generar la factura para el cliente ahora? Se calculará el total y se notificará al cliente.');">
+                    @csrf
+                    <button type="submit" 
+                            class="bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition flex items-center gap-2 shadow-sm">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z"/></svg>
+                        Generar Factura para el Cliente
+                    </button>
+                </form>
+            @endif
+            <a href="{{ route('tecnico.ordenes.index') }}" class="bg-slate-500 text-white px-4 py-2 rounded-lg hover:bg-slate-600 text-sm">Volver</a>
+        </div>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -88,7 +106,7 @@
                     @foreach($ordene->servicios as $servicio)
                         <div class="flex justify-between p-2 bg-slate-50 rounded">
                             <span>{{ $servicio->servicio->nombre ?? 'N/A' }}</span>
-                            <span class="font-semibold">${{ number_format($servicio->precio_unitario, 2) }}</span>
+                            <span class="font-semibold">${{ number_format($servicio->precio, 2) }}</span>
                         </div>
                     @endforeach
                 </div>

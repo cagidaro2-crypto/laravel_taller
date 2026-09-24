@@ -13,6 +13,7 @@
             ['route'=>'tecnico.citas.index',    'label'=>'Citas',           'icon'=>'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'],
             ['route'=>'tecnico.historial.index','label'=>'Historial',       'icon'=>'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z'],
             ['route'=>'tecnico.ventas.index',   'label'=>'Registrar Venta', 'icon'=>'M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z'],
+            ['route'=>'tecnico.facturas.index', 'label'=>'Facturas',        'icon'=>'M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z'],
         ];
     @endphp
     @foreach($navTec as $item)
