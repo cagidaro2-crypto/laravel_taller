@@ -150,5 +150,99 @@
             </a>
         </div>
     </div>
+
+    <!-- Cambiar Estado del Vehículo -->
+    <div class="bg-blue-50 border border-blue-200 rounded-lg shadow p-6 mt-6">
+        <div class="flex justify-between items-start mb-4">
+            <div>
+                <h2 class="text-xl font-bold text-slate-900">Estado del Vehículo</h2>
+                <p class="text-sm text-slate-600 mt-1">
+                    Estado Actual: <span class="font-bold text-blue-600">{{ $ordene->vehiculo->estado->nombre_estado ?? 'N/A' }}</span>
+                </p>
+            </div>
+            <button onclick="openEstadoVehiculoModal()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 font-semibold">
+                Cambiar Estado
+            </button>
+        </div>
+
+        <!-- Historial de Cambios -->
+        <div class="mt-4">
+            <p class="text-sm font-semibold text-slate-700 mb-2">Cambios Recientes:</p>
+            @if($ordene->vehiculo->historial->isEmpty())
+                <p class="text-slate-600 text-sm">Sin historial de cambios</p>
+            @else
+                <div class="space-y-2">
+                    @foreach($ordene->vehiculo->historial->sortByDesc('created_at')->take(5) as $cambio)
+                        <div class="bg-white rounded p-3 text-sm border-l-4 border-blue-400">
+                            <p class="font-semibold text-slate-900">{{ $cambio->estado_anterior }} → {{ $cambio->estado_nuevo }}</p>
+                            <p class="text-slate-600">{{ $cambio->created_at->format('d/m/Y H:i') }}</p>
+                            @if($cambio->descripcion)
+                                <p class="text-slate-600 italic mt-1">{{ $cambio->descripcion }}</p>
+                            @endif
+                        </div>
+                    @endforeach
+                </div>
+            @endif
+        </div>
+    </div>
+
+    <!-- Modal para cambiar estado del vehículo -->
+    <div id="estadoVehiculoModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+        <div class="bg-white rounded-lg shadow-lg p-8 max-w-md w-full mx-4">
+            <h3 class="text-2xl font-bold text-slate-900 mb-4">Cambiar Estado del Vehículo</h3>
+            
+            <form action="{{ route('tecnico.ordenes.estado-vehiculo', $ordene->id_orden) }}" method="POST">
+                @csrf
+                @method('PATCH')
+
+                <div class="mb-4">
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">Nuevo Estado *</label>
+                    <select name="id_estado_vehiculo" required class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">-- Selecciona un estado --</option>
+                        @php
+                            $estadosDisponibles = App\Models\Tecnico\EstadoVehiculo::all();
+                        @endphp
+                        @foreach($estadosDisponibles as $estado)
+                            <option value="{{ $estado->id_estado }}" 
+                                {{ $ordene->vehiculo->id_estado == $estado->id_estado ? 'selected' : '' }}>
+                                {{ $estado->nombre_estado }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="mb-6">
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">Descripción / Observaciones</label>
+                    <textarea name="descripcion" rows="3" class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ej: Se completó el diagnóstico..."></textarea>
+                </div>
+
+                <div class="flex gap-3">
+                    <button type="submit" class="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 font-semibold transition">
+                        Guardar Cambio
+                    </button>
+                    <button type="button" onclick="closeEstadoVehiculoModal()" class="flex-1 bg-slate-300 text-slate-900 px-4 py-2 rounded-lg hover:bg-slate-400 font-semibold transition">
+                        Cancelar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openEstadoVehiculoModal() {
+            document.getElementById('estadoVehiculoModal').classList.remove('hidden');
+        }
+
+        function closeEstadoVehiculoModal() {
+            document.getElementById('estadoVehiculoModal').classList.add('hidden');
+        }
+
+        // Cerrar modal al presionar Escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeEstadoVehiculoModal();
+            }
+        });
+    </script>
 </div>
 @endsection

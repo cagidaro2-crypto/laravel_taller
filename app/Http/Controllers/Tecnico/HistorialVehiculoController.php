@@ -12,9 +12,11 @@ class HistorialVehiculoController extends Controller
 {
     public function index()
     {
-        // CORRECCIÓN: Técnico ve TODOS los historiales
-        // Ya que puede registrar servicios en cualquier vehículo asignado a él
+        // BUG #4: Filtrar historial solo para vehículos con órdenes del técnico
         $historial = HistorialVehiculo::with(['vehiculo.cliente.usuario', 'usuario'])
+            ->whereHas('vehiculo.ordenesTrabajo', function($q) {
+                $q->where('id_usuario', Auth::id());
+            })
             ->orderByDesc('fecha')
             ->paginate(20);
 
@@ -23,6 +25,10 @@ class HistorialVehiculoController extends Controller
 
     public function show(HistorialVehiculo $historialVehiculo)
     {
+        // BUG #4: Verificar autorización
+        abort_if(!$historialVehiculo->vehiculo->ordenesTrabajo()
+            ->where('id_usuario', Auth::id())->exists(), 403);
+        
         $historialVehiculo->load(['vehiculo.cliente.usuario', 'usuario']);
         
         return view('tecnico.historial.show', compact('historialVehiculo'));

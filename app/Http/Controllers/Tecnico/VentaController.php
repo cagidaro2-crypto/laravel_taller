@@ -33,7 +33,7 @@ class VentaController extends Controller
     {
         // BUG #9: Validar que cliente esté activo
         $clientes  = Cliente::whereHas('usuario', function ($q) {
-            $q->where('estado', 'activo');
+            $q->where('activo', true);
         })->with('usuario')->get();
         
         $productos = Producto::where('activo', true)->with('inventario')->get();
@@ -63,7 +63,7 @@ class VentaController extends Controller
 
             // BUG #9: Validar cliente activo
             $cliente = Cliente::with('usuario')->findOrFail($request->id_cliente);
-            if ($cliente->usuario->estado !== 'activo') {
+            if (!$cliente->usuario->activo) {
                 return back()->withInput()->with('error', 'El cliente no está activo y no puede recibir ventas.');
             }
 
@@ -111,7 +111,11 @@ class VentaController extends Controller
                 // Calcular subtotal
                 foreach ($request->items as $item) {
                     $prod      = $productos[$item['id_producto']];
-                    $subtotal += $prod->precio_venta * $item['cantidad'];
+                    // BUG #6, #7: Validar precio y mejorar precisión decimal
+                    if ($prod->precio_venta === null || $prod->precio_venta <= 0) {
+                        throw new \Exception("Precio inválido para {$prod->nombre}");
+                    }
+                    $subtotal = round($subtotal + ($prod->precio_venta * $item['cantidad']), 2);
                 }
 
                 // BUG #3: Usar constante IVA

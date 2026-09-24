@@ -39,6 +39,9 @@ class OrdenTrabajo extends Model
         'total'         => 'decimal:2',
     ];
 
+    // BUG #2: Agregar $appends para acceso correcto a accesores
+    protected $appends = ['total_materiales', 'cuota_reparos'];
+
     public function vehiculo(): BelongsTo
     {
         return $this->belongsTo(Vehiculo::class, 'id_vehiculo', 'id_vehiculo');
@@ -74,19 +77,22 @@ class OrdenTrabajo extends Model
         return $this->hasMany(ConsumoMaterial::class, 'id_orden', 'id_orden');
     }
 
-    // Calcular total de materiales gastados
+    // BUG #2: Corregir accessor de total_materiales
     public function getTotalMaterialesAttribute(): float
     {
-        return $this->consumoMateriales->sum('subtotal');
+        return (float) $this->consumoMateriales->sum('subtotal');
     }
 
-    // Calcular cuota a repararse
+    // BUG #2: Corregir accessor de cuota_reparos - ahora usa getTotalMaterialesAttribute()
     public function getCuotaReparosAttribute(): float
     {
-        $totalServicios = $this->servicios->sum('valor_unitario') ?? 0;
-        $totalProductos = ($this->productos->sum('subtotal') ?? 0) + $this->total_materiales;
-        $impuesto = ($totalServicios + $totalProductos) * 0.19;
+        $totalServicios = (float) ($this->servicios->sum('valor_unitario') ?? 0);
+        $totalProductos = (float) ($this->productos->sum('subtotal') ?? 0);
+        $totalMateriales = $this->getTotalMaterialesAttribute();
         
-        return $totalServicios + $totalProductos + $impuesto;
+        $subtotal = $totalServicios + $totalProductos + $totalMateriales;
+        $impuesto = $subtotal * 0.19;
+        
+        return round($subtotal + $impuesto, 2);
     }
 }

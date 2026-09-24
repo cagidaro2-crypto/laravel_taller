@@ -4,6 +4,7 @@ namespace App\Models\Tecnico;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Models\Admin\Usuario;
 
 class HistorialVehiculo extends Model
 {
@@ -13,10 +14,13 @@ class HistorialVehiculo extends Model
 
     protected $fillable = [
         'id_vehiculo',
+        'id_usuario',
         'fecha',
         'descripcion',
         'valor',
         'estado',
+        'estado_anterior',
+        'estado_nuevo',
     ];
 
     protected $casts = [
@@ -27,5 +31,10 @@ class HistorialVehiculo extends Model
     public function vehiculo(): BelongsTo
     {
         return $this->belongsTo(Vehiculo::class, 'id_vehiculo', 'id_vehiculo');
+    }
+
+    public function usuario(): BelongsTo
+    {
+        return $this->belongsTo(Usuario::class, 'id_usuario', 'id_usuario');
     }
 }

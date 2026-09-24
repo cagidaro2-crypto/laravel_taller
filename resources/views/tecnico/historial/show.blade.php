@@ -85,7 +85,7 @@
                         </div>
                         <div>
                             <p class="font-bold text-slate-900 text-lg">{{ $historialVehiculo->usuario->nombre }}</p>
-                            <p class="text-slate-600">{{ $historialVehiculo->usuario->email }}</p>
+                            <p class="text-slate-600">{{ $historialVehiculo->usuario->correo ?? 'N/A' }}</p>
                         </div>
                     </div>
                 </div>

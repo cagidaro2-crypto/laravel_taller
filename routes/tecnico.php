@@ -20,6 +20,7 @@ Route::prefix('tecnico')->name('tecnico.')->middleware(['auth', 'role:Técnico,E
     // RF-53, RF-54: Órdenes
     Route::resource('ordenes', OrdenTrabajoController::class)->only(['index', 'show']);
     Route::patch('ordenes/{ordene}/estado', [OrdenTrabajoController::class, 'actualizarEstado'])->name('ordenes.estado');
+    Route::patch('ordenes/{ordene}/estado-vehiculo', [OrdenTrabajoController::class, 'actualizarEstadoVehiculo'])->name('ordenes.estado-vehiculo');
 
     // RF-XX: Consumo de Materiales
     Route::get('ordenes/{ordene}/materiales', [ConsumoMaterialController::class, 'show'])->name('consumo-materiales.show');

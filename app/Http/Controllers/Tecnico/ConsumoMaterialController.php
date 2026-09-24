@@ -42,12 +42,18 @@ class ConsumoMaterialController extends Controller
 
         $request->validate([
             'id_producto'    => 'required|exists:productos,id_producto',
-            'cantidad_usada' => 'required|integer|min:1',
-            'observaciones'  => 'nullable|string',
+            'cantidad_usada' => 'required|integer|min:1|max:10000',
+            'observaciones'  => 'nullable|string|max:500',
         ]);
 
         // Obtener producto
         $producto = Producto::findOrFail($request->id_producto);
+
+        // BUG #5: Validar que producto esté activo
+        if (!$producto->activo) {
+            return back()->withInput()->with('error', 
+                "El producto '{$producto->nombre}' no está activo y no puede ser consumido.");
+        }
 
         // Verificar stock disponible
         $inventario = Inventario::where('id_producto', $request->id_producto)->first();

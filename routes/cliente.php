@@ -6,11 +6,18 @@ use App\Http\Controllers\Cliente\VehiculoController;
 use App\Http\Controllers\Cliente\CotizacionController;
 use App\Http\Controllers\Cliente\HistorialVehiculoController;
 use App\Http\Controllers\Cliente\CitaController;
+use App\Http\Controllers\Cliente\NotificacionController;
 
 Route::prefix('cliente')->name('cliente.')->middleware(['auth', 'role:Cliente'])->group(function () {
 
     // RF-05
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    // Notificaciones
+    Route::get('/notificaciones', [NotificacionController::class, 'index'])->name('notificaciones');
+    Route::post('/notificaciones/{notificacion}/leida', [NotificacionController::class, 'marcarLeida'])->name('notificaciones.marcar-leida');
+    Route::post('/notificaciones/marcar-leidas', [NotificacionController::class, 'marcarTodasLeidas'])->name('notificaciones.marcar-leidas');
+    Route::get('/notificaciones/api/no-leidas', [NotificacionController::class, 'contadorNoLeidas'])->name('notificaciones.contador');
 
     // RF-17 al RF-20, RF-25, RF-26: Vehículos
     Route::resource('vehiculos', VehiculoController::class)->only(['index', 'create', 'store', 'show', 'edit', 'update']);
@@ -28,3 +35,4 @@ Route::prefix('cliente')->name('cliente.')->middleware(['auth', 'role:Cliente'])
     Route::resource('citas', CitaController::class)->only(['index', 'create', 'store', 'show']);
     Route::patch('citas/{cita}/cancelar', [CitaController::class, 'cancelar'])->name('citas.cancelar');
 });
+
