@@ -113,7 +113,7 @@
                             <div>
                                 <p class="text-xs text-slate-600 uppercase tracking-wide font-semibold mb-1">Monto Total</p>
                                 <p class="font-bold text-slate-900 text-lg">
-                                    ${{ number_format($cotizacion->monto_total ?? 0, 2, '.', ',') }}
+                                    ${{ number_format($cotizacion->total ?? 0, 2, '.', ',') }}
                                 </p>
                             </div>
 
@@ -123,17 +123,21 @@
                                     Ver Detalles
                                 </a>
                                 @if($cotizacion->estado === 'Pendiente')
-                                    <button onclick="approveQuote({{ $cotizacion->id_cotizacion }})" class="text-center bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 font-semibold transition text-sm">
-                                        Aprobar
-                                    </button>
+                                    <form action="{{ route('cliente.cotizaciones.aprobar', $cotizacion) }}" method="POST" onsubmit="return confirm('¿Estás seguro de que deseas aprobar esta cotización?');">
+                                        @csrf
+                                        @method('PATCH')
+                                        <button type="submit" class="w-full text-center bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 font-semibold transition text-sm">
+                                            Aprobar
+                                        </button>
+                                    </form>
                                 @endif
                             </div>
                         </div>
 
-                        @if($cotizacion->descripcion)
+                        @if($cotizacion->observaciones)
                             <div class="mt-4 pt-4 border-t border-slate-200">
-                                <p class="text-sm text-slate-600 mb-1"><strong>Descripción:</strong></p>
-                                <p class="text-slate-700 text-sm">{{ $cotizacion->descripcion }}</p>
+                                <p class="text-sm text-slate-600 mb-1"><strong>Observaciones:</strong></p>
+                                <p class="text-slate-700 text-sm">{{ $cotizacion->observaciones }}</p>
                             </div>
                         @endif
                     </div>
@@ -142,22 +146,4 @@
         </div>
     @endif
 </div>
-
-<script>
-function approveQuote(cotizacionId) {
-    if (confirm('¿Estás seguro de que deseas aprobar esta cotización?')) {
-        fetch(`/cliente/cotizaciones/${cotizacionId}/aprobar`, {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                'Content-Type': 'application/json',
-            }
-        }).then(response => {
-            if (response.ok) {
-                location.reload();
-            }
-        });
-    }
-}
-</script>
 @endsection

@@ -7,16 +7,26 @@ use App\Models\Tecnico\HistorialVehiculo;
 
 class HistorialVehiculoController extends Controller
 {
+    use HasClienteProfile;
+
     public function index()
     {
-        $historial = HistorialVehiculo::whereHas('vehiculo.cliente', function ($q) {
-            $q->where('id_usuario', auth()->id());
-        })->with('vehiculo')->get();
+        $historial = HistorialVehiculo::whereHas('vehiculo', function ($q) {
+            $q->where('id_cliente', $this->clienteId());
+        })
+        ->with(['vehiculo.fotos', 'usuario'])
+        ->orderByDesc('fecha')
+        ->get();
+
         return view('cliente.historial.index', compact('historial'));
     }
 
-    public function show(HistorialVehiculo $historialVehiculo)
+    public function show(HistorialVehiculo $historial)
     {
-        return view('cliente.historial.show', compact('historialVehiculo'));
+        abort_if(!$historial->vehiculo || $historial->vehiculo->id_cliente !== $this->clienteId(), 403);
+        $historial->load(['vehiculo.fotos', 'usuario']);
+        $historialVehiculo = $historial;
+
+        return view('cliente.historial.show', compact('historial', 'historialVehiculo'));
     }
 }

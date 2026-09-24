@@ -9,10 +9,7 @@ use Illuminate\Support\Facades\Auth;
 
 class CotizacionController extends Controller
 {
-    private function clienteId(): int
-    {
-        return Auth::user()->cliente->id_cliente;
-    }
+    use HasClienteProfile;
 
     // RF-43: Ver cotizaciones del cliente
     public function index()

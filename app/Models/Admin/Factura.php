@@ -17,6 +17,7 @@ class Factura extends Model
     protected $fillable = [
         'id_cliente',
         'id_orden',
+        'id_cotizacion',
         'numero_factura',
         'fecha',
         'subtotal',
@@ -42,8 +43,23 @@ class Factura extends Model
         return $this->belongsTo(OrdenTrabajo::class, 'id_orden', 'id_orden');
     }
 
+    public function cotizacion(): BelongsTo
+    {
+        return $this->belongsTo(Cotizacion::class, 'id_cotizacion', 'id_cotizacion');
+    }
+
     public function pagos(): HasMany
     {
         return $this->hasMany(Pago::class, 'id_factura', 'id_factura');
+    }
+
+    public function getTotalPagadoAttribute(): float
+    {
+        return (float) $this->pagos->sum('monto');
+    }
+
+    public function getSaldoPendienteAttribute(): float
+    {
+        return max(0, (float) $this->total - $this->total_pagado);
     }
 }

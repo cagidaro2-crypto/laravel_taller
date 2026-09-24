@@ -10,10 +10,7 @@ use Illuminate\Support\Facades\Auth;
 
 class CitaController extends Controller
 {
-    private function clienteId(): int
-    {
-        return Auth::user()->cliente->id_cliente;
-    }
+    use HasClienteProfile;
 
     public function index()
     {

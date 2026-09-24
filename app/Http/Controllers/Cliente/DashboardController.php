@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Cliente;
 
 use App\Http\Controllers\Controller;
 use App\Models\Admin\Cotizacion;
+use App\Models\Admin\Factura;
+use App\Models\Cliente\Cliente;
 use App\Models\Tecnico\Cita;
 use App\Models\Tecnico\Vehiculo;
 use Illuminate\Support\Facades\Auth;
@@ -12,16 +14,17 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        $usuario  = Auth::user();
-        $cliente  = $usuario->cliente;
+        $usuario = Auth::user();
+        $cliente = $usuario->cliente;
 
-        // Si el usuario no tiene registro en clientes todavía, mostrar dashboard vacío
         if (!$cliente) {
-            return view('cliente.dashboard', [
-                'misVehiculos'           => 0,
-                'misCitas'               => 0,
-                'cotizacionesPendientes' => 0,
-            ]);
+            $cliente = Cliente::firstOrCreate(
+                ['id_usuario' => $usuario->id_usuario],
+                [
+                    'documento' => 'CLI-' . str_pad($usuario->id_usuario, 5, '0', STR_PAD_LEFT),
+                    'direccion' => null,
+                ]
+            );
         }
 
         $clienteId = $cliente->id_cliente;
@@ -33,7 +36,17 @@ class DashboardController extends Controller
         $cotizacionesPendientes = Cotizacion::where('id_cliente', $clienteId)
             ->where('estado', 'Pendiente')
             ->count();
+        $misFacturas            = Factura::where('id_cliente', $clienteId)->count();
+        $facturasPendientes     = Factura::where('id_cliente', $clienteId)
+            ->where('estado', 'Pendiente')
+            ->count();
 
-        return view('cliente.dashboard', compact('misVehiculos', 'misCitas', 'cotizacionesPendientes'));
+        return view('cliente.dashboard', compact(
+            'misVehiculos',
+            'misCitas',
+            'cotizacionesPendientes',
+            'misFacturas',
+            'facturasPendientes'
+        ));
     }
 }

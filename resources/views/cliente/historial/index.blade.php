@@ -62,7 +62,7 @@
                                 <p class="text-xs text-slate-600 uppercase tracking-wide font-semibold mb-1">Técnico</p>
                                 @if($registro->usuario)
                                     <p class="font-semibold text-slate-900">{{ $registro->usuario->nombre }}</p>
-                                    <p class="text-slate-600 text-sm">{{ $registro->usuario->email }}</p>
+                                    <p class="text-slate-600 text-sm">{{ $registro->usuario->correo }}</p>
                                 @else
                                     <p class="text-slate-600">No asignado</p>
                                 @endif
