@@ -63,12 +63,29 @@
                                 </div>
                             @endif
 
-                            <!-- Link a la orden si existe -->
-                            @if($notificacion->id_orden)
-                                <a href="{{ route('cliente.ordenes.show', $notificacion->id_orden) }}" class="text-blue-600 hover:text-blue-800 text-sm font-semibold">
-                                    Ver orden #{{ $notificacion->id_orden }} →
-                                </a>
-                            @endif
+                            <div class="flex flex-wrap items-center gap-3 my-2">
+                                @if($notificacion->tipo === 'factura_generada')
+                                    <a href="{{ route('cliente.facturas.index') }}" class="text-indigo-600 hover:text-indigo-800 text-sm font-semibold flex items-center gap-1">
+                                        <span>Ver en Mis Facturas</span> →
+                                    </a>
+                                @endif
+
+                                @php
+                                    $vehiculoTarget = $notificacion->id_vehiculo ?? ($notificacion->orden?->id_vehiculo ?? null);
+                                @endphp
+
+                                @if($vehiculoTarget)
+                                    <a href="{{ route('cliente.vehiculos.show', $vehiculoTarget) }}" class="text-blue-600 hover:text-blue-800 text-sm font-semibold flex items-center gap-1">
+                                        <span>Ver Vehículo</span> →
+                                    </a>
+                                @endif
+
+                                @if($notificacion->id_orden)
+                                    <span class="text-xs bg-slate-100 text-slate-700 px-2.5 py-1 rounded-md font-medium">
+                                        Orden #{{ $notificacion->id_orden }}
+                                    </span>
+                                @endif
+                            </div>
 
                             <p class="text-slate-500 text-xs mt-3">
                                 {{ $notificacion->created_at->diffForHumans() }}
