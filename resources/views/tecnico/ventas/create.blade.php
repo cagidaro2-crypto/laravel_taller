@@ -14,12 +14,12 @@
         <form action="{{ route('tecnico.ventas.store') }}" method="POST" id="ventaForm">
             @csrf
 
-            <!-- Cliente -->
+            <!-- Cliente & Vehículo -->
             <div class="bg-white rounded-xl shadow p-8 mb-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label class="block text-sm font-semibold text-slate-700 mb-2">Cliente *</label>
-                        <select name="id_cliente" required class="w-full border border-slate-200 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                        <select id="clienteSelect" name="id_cliente" required class="w-full border border-slate-200 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
                             <option value="">Selecciona un cliente</option>
                             @foreach($clientes as $cliente)
                                 <option value="{{ $cliente->id_cliente }}" {{ old('id_cliente') == $cliente->id_cliente ? 'selected' : '' }}>
@@ -33,12 +33,22 @@
                     </div>
 
                     <div>
-                        <label class="block text-sm font-semibold text-slate-700 mb-2">Fecha de Venta *</label>
-                        <input type="date" name="fecha" required class="w-full border border-slate-200 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 outline-none" value="{{ old('fecha', date('Y-m-d')) }}" max="{{ date('Y-m-d') }}">
-                        @error('fecha')
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">Vehículo (Opcional)</label>
+                        <select id="vehiculoSelect" name="id_vehiculo" class="w-full border border-slate-200 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none disabled:bg-slate-100 disabled:cursor-not-allowed">
+                            <option value="">Selecciona un cliente primero</option>
+                        </select>
+                        @error('id_vehiculo')
                             <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
                         @enderror
                     </div>
+                </div>
+
+                <div class="mt-4">
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">Fecha de Venta *</label>
+                    <input type="date" name="fecha" required class="w-full border border-slate-200 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 outline-none" value="{{ old('fecha', date('Y-m-d')) }}" max="{{ date('Y-m-d') }}">
+                    @error('fecha')
+                        <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                    @enderror
                 </div>
             </div>
 
@@ -143,12 +153,55 @@
 </div>
 
 <script>
+// CARGAR VEHÍCULOS CUANDO SE SELECCIONA CLIENTE
+document.getElementById('clienteSelect').addEventListener('change', async function() {
+    const idCliente = this.value;
+    const vehiculoSelect = document.getElementById('vehiculoSelect');
+    
+    if (!idCliente) {
+        vehiculoSelect.disabled = true;
+        vehiculoSelect.innerHTML = '<option value="">Selecciona un cliente primero</option>';
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/tecnico/ventas/get-vehiculos/${idCliente}`);
+        const data = await response.json();
+        
+        if (data.success && data.data.length > 0) {
+            vehiculoSelect.innerHTML = '<option value="">Sin vehículo específico</option>';
+            data.data.forEach(vehiculo => {
+                const option = document.createElement('option');
+                option.value = vehiculo.id_vehiculo;
+                option.textContent = vehiculo.label;
+                if ("{{ old('id_vehiculo') }}" == vehiculo.id_vehiculo) {
+                    option.selected = true;
+                }
+                vehiculoSelect.appendChild(option);
+            });
+            vehiculoSelect.disabled = false;
+        } else {
+            vehiculoSelect.innerHTML = '<option value="">Este cliente no tiene vehículos registrados</option>';
+            vehiculoSelect.disabled = true;
+        }
+    } catch (error) {
+        console.error('Error cargando vehículos:', error);
+        vehiculoSelect.innerHTML = '<option value="">Error al cargar vehículos</option>';
+        vehiculoSelect.disabled = true;
+    }
+});
+
+// Trigger change si hay cliente seleccionado al cargar
+if (document.getElementById('clienteSelect').value) {
+    document.getElementById('clienteSelect').dispatchEvent(new Event('change'));
+}
+
 let itemCount = {{ old('items') ? count(old('items')) : 1 }};
 
 function addItem() {
     const container = document.getElementById('itemsContainer');
     const newRow = document.createElement('div');
-    newRow.className = 'item-row flex gap-3';
+    newRow.className = 'item-row flex gap-3 bg-slate-50 p-4 rounded-lg';
     newRow.innerHTML = `
         <select name="items[${itemCount}][id_producto]" class="flex-1 border border-slate-200 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 outline-none" onchange="updateResumen()">
             <option value="">Selecciona producto</option>
@@ -159,8 +212,8 @@ function addItem() {
             @endforeach
         </select>
         <input type="number" name="items[${itemCount}][cantidad]" value="1" min="1" placeholder="Cantidad" class="w-24 border border-slate-200 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 outline-none" onchange="updateResumen()">
-        <button type="button" onclick="removeItem(this)" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition">
-            Quitar
+        <button type="button" onclick="removeItem(this)" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition font-semibold">
+            ✕
         </button>
     `;
     container.appendChild(newRow);

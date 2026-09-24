@@ -61,4 +61,9 @@ class Vehiculo extends Model
     {
         return $this->hasMany(Cita::class, 'id_vehiculo', 'id_vehiculo');
     }
+
+    public function ventas(): HasMany
+    {
+        return $this->hasMany(\App\Models\Admin\Venta::class, 'id_vehiculo', 'id_vehiculo');
+    }
 }

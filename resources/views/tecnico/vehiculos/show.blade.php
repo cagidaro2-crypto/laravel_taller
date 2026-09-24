@@ -144,6 +144,31 @@
                 @endif
             </div>
 
+            <!-- Ventas Asociadas -->
+            @php
+                $ventas = $vehiculo->ventas()->with('usuario', 'detalles')->orderByDesc('fecha')->get();
+            @endphp
+            <div class="bg-white rounded-xl shadow p-6">
+                <h3 class="text-lg font-bold text-slate-900 mb-4">Ventas Registradas</h3>
+
+                @if($ventas->isEmpty())
+                    <p class="text-slate-600 text-sm">No hay ventas registradas</p>
+                @else
+                    <div class="space-y-3">
+                        @foreach($ventas as $venta)
+                            <div class="p-3 border border-slate-200 rounded-lg hover:border-green-400 transition bg-green-50">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="font-semibold text-slate-900">Venta #{{ $venta->id_venta }}</span>
+                                    <span class="font-bold text-green-600">${{ number_format($venta->total, 2, '.', ',') }}</span>
+                                </div>
+                                <p class="text-xs text-slate-600">{{ $venta->fecha->format('d/m/Y') }}</p>
+                                <p class="text-xs text-slate-600 mt-1">{{ $venta->detalles->count() }} producto(s) - {{ $venta->usuario->nombre ?? 'N/A' }}</p>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
+
             <!-- Acciones -->
             <div class="bg-white rounded-xl shadow p-6">
                 <h3 class="text-lg font-bold text-slate-900 mb-4">Acciones</h3>

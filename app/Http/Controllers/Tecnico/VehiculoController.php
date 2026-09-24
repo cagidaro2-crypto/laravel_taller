@@ -32,7 +32,7 @@ class VehiculoController extends Controller
 
     public function show(Vehiculo $vehiculo)
     {
-        $vehiculo->load(['cliente.usuario', 'estado', 'fotos', 'historial', 'ordenesTrabajo.estado']);
+        $vehiculo->load(['cliente.usuario', 'estado', 'fotos', 'historial', 'ordenesTrabajo.estado', 'ventas.usuario', 'ventas.detalles']);
         return view('tecnico.vehiculos.show', compact('vehiculo'));
     }
 

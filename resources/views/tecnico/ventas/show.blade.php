@@ -31,10 +31,18 @@
                 </div>
 
                 @if($venta->cliente)
-                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
                         <p class="text-sm text-slate-600 uppercase tracking-wide font-semibold mb-2">Cliente</p>
                         <p class="text-lg font-semibold text-slate-900">{{ $venta->cliente->usuario->nombre }}</p>
                         <p class="text-slate-600">{{ $venta->cliente->usuario->correo ?? 'N/A' }}</p>
+                    </div>
+                @endif
+
+                @if($venta->vehiculo)
+                    <div class="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                        <p class="text-sm text-slate-600 uppercase tracking-wide font-semibold mb-2">Vehículo Asociado</p>
+                        <p class="text-lg font-semibold text-slate-900">{{ $venta->vehiculo->placa }}</p>
+                        <p class="text-slate-600">{{ $venta->vehiculo->marca }} {{ $venta->vehiculo->modelo }} ({{ $venta->vehiculo->anio }})</p>
                     </div>
                 @endif
             </div>

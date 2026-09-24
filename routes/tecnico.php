@@ -38,4 +38,5 @@ Route::prefix('tecnico')->name('tecnico.')->middleware(['auth', 'role:Técnico,E
 
     // RF-74: Ventas (técnico registra)
     Route::resource('ventas', VentaController::class)->only(['index', 'create', 'store', 'show']);
+    Route::get('ventas/get-vehiculos/{idCliente}', [VentaController::class, 'getVehiculosCliente'])->name('ventas.get-vehiculos');
 });

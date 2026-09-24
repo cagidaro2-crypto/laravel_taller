@@ -93,7 +93,7 @@ class VehiculoController extends Controller
         // Solo el dueño puede ver su vehículo
         abort_if($vehiculo->id_cliente !== $this->clienteId(), 403);
 
-        $vehiculo->load(['estado', 'fotos', 'historial', 'ordenesTrabajo.estado']);
+        $vehiculo->load(['estado', 'fotos', 'historial', 'ordenesTrabajo.estado', 'ventas.usuario', 'ventas.detalles']);
 
         return view('cliente.vehiculos.show', compact('vehiculo'));
     }

@@ -122,7 +122,7 @@
     </div>
 
     <!-- Historial de Órdenes -->
-    <div class="bg-white rounded-xl shadow p-6">
+    <div class="bg-white rounded-xl shadow p-6 mb-8">
         <h2 class="text-xl font-bold text-slate-900 mb-4">Historial de Órdenes</h2>
         
         @if($vehiculo->ordenesTrabajo->isEmpty())
@@ -149,6 +149,43 @@
                                     </span>
                                 </td>
                                 <td class="px-4 py-3 text-slate-600 text-sm">{{ Str::limit($orden->descripcion_problema, 50) }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        @endif
+    </div>
+
+    <!-- Historial de Ventas -->
+    @php
+        $ventas = $vehiculo->ventas ?? collect();
+    @endphp
+    <div class="bg-white rounded-xl shadow p-6">
+        <h2 class="text-xl font-bold text-slate-900 mb-4">Productos Vendidos</h2>
+        
+        @if($ventas->isEmpty())
+            <p class="text-slate-600">No hay ventas registradas para este vehículo</p>
+        @else
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-slate-100 border-b">
+                        <tr>
+                            <th class="px-4 py-3 text-left text-sm font-semibold text-slate-900">#Venta</th>
+                            <th class="px-4 py-3 text-left text-sm font-semibold text-slate-900">Fecha</th>
+                            <th class="px-4 py-3 text-left text-sm font-semibold text-slate-900">Productos</th>
+                            <th class="px-4 py-3 text-left text-sm font-semibold text-slate-900">Total</th>
+                            <th class="px-4 py-3 text-left text-sm font-semibold text-slate-900">Técnico</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-200">
+                        @foreach($ventas as $venta)
+                            <tr class="hover:bg-slate-50 transition">
+                                <td class="px-4 py-3 font-semibold text-slate-900">#{{ $venta->id_venta }}</td>
+                                <td class="px-4 py-3 text-slate-600">{{ $venta->fecha->format('d/m/Y') }}</td>
+                                <td class="px-4 py-3 text-slate-600 text-sm">{{ $venta->detalles->count() }} producto(s)</td>
+                                <td class="px-4 py-3 font-semibold text-green-600">${{ number_format($venta->total, 2, '.', ',') }}</td>
+                                <td class="px-4 py-3 text-slate-600 text-sm">{{ $venta->usuario->nombre ?? 'N/A' }}</td>
                             </tr>
                         @endforeach
                     </tbody>

@@ -127,13 +127,14 @@ class VentaController extends Controller
 
                 // Crear venta
                 $venta = Venta::create([
-                    'id_cliente' => $request->id_cliente,
-                    'id_usuario' => Auth::id(),
-                    'fecha'      => $request->fecha,
-                    'subtotal'   => $subtotal,
-                    'impuesto'   => $impuesto,
-                    'total'      => $total,
-                    'estado'     => 'Completada',
+                    'id_cliente'  => $request->id_cliente,
+                    'id_vehiculo' => $request->id_vehiculo,
+                    'id_usuario'  => Auth::id(),
+                    'fecha'       => $request->fecha,
+                    'subtotal'    => $subtotal,
+                    'impuesto'    => $impuesto,
+                    'total'       => $total,
+                    'estado'      => 'Completada',
                 ]);
 
                 // Crear detalles y descontar inventario
@@ -206,6 +207,30 @@ class VentaController extends Controller
         $usuario = Usuario::findOrFail($venta->id_usuario);
 
         return view('tecnico.ventas.show', compact('venta', 'usuario'));
+    }
+
+    /**
+     * Obtener vehículos de un cliente (API para AJAX)
+     */
+    public function getVehiculosCliente($idCliente)
+    {
+        try {
+            $vehiculos = \App\Models\Tecnico\Vehiculo::where('id_cliente', $idCliente)
+                ->with('estado')
+                ->get(['id_vehiculo', 'placa', 'marca', 'modelo', 'id_estado'])
+                ->map(function ($v) {
+                    return [
+                        'id_vehiculo' => $v->id_vehiculo,
+                        'placa'       => $v->placa,
+                        'label'       => "{$v->placa} - {$v->marca} {$v->modelo} ({$v->estado?->nombre})"
+                    ];
+                });
+
+            return response()->json(['success' => true, 'data' => $vehiculos]);
+        } catch (\Exception $e) {
+            Log::error("Error obteniendo vehículos: {$e->getMessage()}");
+            return response()->json(['success' => false, 'message' => 'Error al cargar vehículos'], 500);
+        }
     }
 
     /**

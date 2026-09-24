@@ -53,6 +53,12 @@
                                         </p>
                                     @endif
 
+                                    @if($venta->vehiculo)
+                                        <p class="text-slate-600 text-sm mt-1">
+                                            <strong>Vehículo:</strong> {{ $venta->vehiculo->placa }} - {{ $venta->vehiculo->marca }} {{ $venta->vehiculo->modelo }}
+                                        </p>
+                                    @endif
+
                                     <div class="mt-3">
                                         <span class="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
                                             {{ $venta->estado }}
