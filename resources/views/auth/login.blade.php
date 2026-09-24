@@ -1,459 +1,300 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="h-full">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Iniciar Sesión — Taller Latonería</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-    @vite(['resources/css/app.css'])
+    <title>Iniciar Sesión — Taller Latonería y Pintura</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-
-        body {
-            min-height: 100vh;
-            display: flex;
-            font-family: 'Segoe UI', sans-serif;
-            background: #0f172a;
-        }
-
-        /* ── Panel izquierdo (imagen/branding) ── */
-        .left-panel {
-            flex: 1;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
-            padding: 3rem;
-            overflow: hidden;
-        }
-
-        .left-panel::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background:
-                linear-gradient(to bottom, rgba(15,23,42,.3) 0%, rgba(15,23,42,.85) 100%),
-                url('https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?w=1200&q=80') center/cover no-repeat;
-            z-index: 0;
-        }
-
-        .left-panel .content {
-            position: relative;
-            z-index: 1;
-            color: #fff;
-        }
-
-        .left-panel .brand-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: .5rem;
-            background: rgba(255,255,255,.12);
-            backdrop-filter: blur(6px);
-            border: 1px solid rgba(255,255,255,.2);
-            border-radius: 2rem;
-            padding: .4rem 1rem;
-            font-size: .8rem;
-            font-weight: 600;
-            letter-spacing: .05em;
-            text-transform: uppercase;
-            margin-bottom: 1.5rem;
-            color: #f1f5f9;
-        }
-
-        .left-panel h1 {
-            font-size: clamp(1.8rem, 3vw, 2.6rem);
-            font-weight: 800;
-            line-height: 1.2;
-            margin-bottom: .75rem;
-        }
-
-        .left-panel p {
-            color: #cbd5e1;
-            font-size: .95rem;
-            max-width: 380px;
-            line-height: 1.6;
-        }
-
-        .stats-row {
-            display: flex;
-            gap: 2rem;
-            margin-top: 2rem;
-        }
-
-        .stat-item {
-            text-align: left;
-        }
-
-        .stat-item .num {
-            font-size: 1.6rem;
-            font-weight: 800;
-            color: #f97316;
-        }
-
-        .stat-item .label {
-            font-size: .75rem;
-            color: #94a3b8;
-            text-transform: uppercase;
-            letter-spacing: .05em;
-        }
-
-        /* ── Panel derecho (formulario) ── */
-        .right-panel {
-            width: 440px;
-            min-width: 440px;
-            background: #fff;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            padding: 3rem 3rem;
-        }
-
-        .right-panel .logo-area {
-            display: flex;
-            align-items: center;
-            gap: .75rem;
-            margin-bottom: 2.5rem;
-        }
-
-        .logo-icon {
-            width: 44px;
-            height: 44px;
-            background: linear-gradient(135deg, #f97316, #ea580c);
-            border-radius: .75rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #fff;
-            font-size: 1.3rem;
-        }
-
-        .right-panel h2 {
-            font-size: 1.8rem;
-            font-weight: 800;
-            color: #0f172a;
-            margin-bottom: .5rem;
-        }
-
-        .right-panel .subtitle {
-            color: #64748b;
-            font-size: .95rem;
-            margin-bottom: 2.5rem;
-            font-weight: 500;
-        }
-
-        .form-label {
-            font-size: .8rem;
-            font-weight: 600;
-            color: #374151;
-            text-transform: uppercase;
-            letter-spacing: .04em;
-            margin-bottom: .4rem;
-        }
-
-        .input-group-custom {
-            position: relative;
-            margin-bottom: 1.25rem;
-        }
-
-        .input-group-custom .icon {
-            position: absolute;
-            left: .9rem;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #94a3b8;
-            font-size: 1rem;
-            z-index: 2;
-        }
-
-        .input-group-custom input {
-            padding-left: 2.5rem;
-            padding-right: 2.5rem;
-            height: 48px;
-            border: 1.5px solid #e2e8f0;
-            border-radius: .6rem;
-            font-size: .9rem;
-            transition: border-color .2s, box-shadow .2s;
-            width: 100%;
-        }
-
-        .input-group-custom input:focus {
-            outline: none;
-            border-color: #f97316;
-            box-shadow: 0 0 0 3px rgba(249,115,22,.15);
-        }
-
-        .input-group-custom .toggle-pass {
-            position: absolute;
-            right: .9rem;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #94a3b8;
-            cursor: pointer;
-            font-size: 1rem;
-            background: none;
-            border: none;
-            padding: 0;
-            z-index: 2;
-        }
-
-        .btn-login {
-            width: 100%;
-            height: 54px;
-            background: linear-gradient(135deg, #f97316, #ea580c);
-            border: none;
-            border-radius: .75rem;
-            color: #fff;
-            font-weight: 800;
-            font-size: 1.05rem;
-            letter-spacing: .05em;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-top: 1.5rem;
-            box-shadow: 0 8px 16px rgba(249, 115, 22, 0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.6rem;
-        }
-
-        .btn-login:hover { 
-            opacity: 0.95;
-            transform: translateY(-2px);
-            box-shadow: 0 12px 24px rgba(249, 115, 22, 0.4);
-        }
-        
-        .btn-login:active { 
-            transform: translateY(0px);
-            box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
-        }
-
-        .divider {
-            display: flex;
-            align-items: center;
-            gap: .75rem;
-            color: #cbd5e1;
-            font-size: .8rem;
-            margin: 1.5rem 0;
-        }
-
-        .divider::before, .divider::after {
-            content: '';
-            flex: 1;
-            height: 1px;
-            background: #e2e8f0;
-        }
-
-        .footer-link {
-            text-align: center;
-            font-size: .85rem;
-            color: #64748b;
-        }
-
-        .footer-link a {
-            color: #f97316;
-            font-weight: 600;
-            text-decoration: none;
-        }
-
-        .footer-link a:hover { text-decoration: underline; }
-
-        .alert-error {
-            background: #fef2f2;
-            border: 1px solid #fecaca;
-            border-radius: .6rem;
-            color: #b91c1c;
-            font-size: .85rem;
-            padding: .75rem 1rem;
-            margin-bottom: 1.25rem;
-            display: flex;
-            align-items: flex-start;
-            gap: .5rem;
-        }
-
-        .alert-success-msg {
-            background: #f0fdf4;
-            border: 1px solid #bbf7d0;
-            border-radius: .6rem;
-            color: #166534;
-            font-size: .85rem;
-            padding: .75rem 1rem;
-            margin-bottom: 1.25rem;
-        }
-
-        .remember-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 1.25rem;
-        }
-
-        .remember-row label {
-            font-size: .85rem;
-            color: #475569;
-            display: flex;
-            align-items: center;
-            gap: .4rem;
-            cursor: pointer;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .left-panel { display: none; }
-            .right-panel { width: 100%; min-width: unset; padding: 2rem 1.5rem; }
-        }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
     </style>
 </head>
-<body>
+<body class="min-h-full bg-slate-950 text-slate-100 flex flex-col justify-center selection:bg-orange-500 selection:text-white">
 
-    {{-- Panel izquierdo --}}
-    <div class="left-panel">
-        <div class="content">
-            <div class="brand-badge">
-                <i class="bi bi-tools"></i> Taller Profesional
+    <div class="min-h-screen flex flex-col lg:flex-row">
+
+        <!-- ══════════════════════════════════════════════════
+             PANEL IZQUIERDO: Branding y Experiencia Visual
+        ══════════════════════════════════════════════════ -->
+        <div class="relative hidden lg:flex lg:w-1/2 xl:w-7/12 flex-col justify-between p-12 xl:p-16 overflow-hidden">
+            <!-- Imagen de fondo con gradientes de oscurecimiento y color -->
+            <div class="absolute inset-0 z-0">
+                <img src="https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?w=1600&auto=format&fit=crop&q=80" 
+                     alt="Taller de Latonería y Pintura" 
+                     class="w-full h-full object-cover scale-105 filter brightness-75 contrast-110">
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/70 to-slate-950/40"></div>
+                <div class="absolute inset-0 bg-gradient-to-r from-slate-950/90 via-slate-950/40 to-transparent"></div>
+                <!-- Luces ambientales de acento -->
+                <div class="absolute -top-24 -left-24 w-96 h-96 bg-orange-600/20 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="absolute -bottom-24 right-0 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
             </div>
-            <h1>Latonería y Pintura<br>de Excelencia</h1>
-            <p>Gestionamos cada vehículo con precisión, trazabilidad total y atención al cliente de primer nivel.</p>
-            <div class="stats-row">
-                <div class="stat-item">
-                    <div class="num">+500</div>
-                    <div class="label">Vehículos atendidos</div>
+
+            <!-- Top: Logo y Marca -->
+            <div class="relative z-10">
+                <a href="{{ route('inicio') }}" class="inline-flex items-center gap-3 group">
+                    <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center shadow-lg shadow-orange-500/30 group-hover:scale-105 transition-transform duration-300">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 7v5"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <span class="text-xl font-extrabold tracking-tight text-white block">Taller Latonería</span>
+                        <span class="text-xs font-semibold tracking-wider uppercase text-orange-400">Pintura & Restauración</span>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Bottom: Mensaje, Testimonio y Estadísticas -->
+            <div class="relative z-10 space-y-8 max-w-xl">
+                <div class="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-orange-300 text-xs font-semibold uppercase tracking-wider shadow-inner">
+                    <span class="w-2 h-2 rounded-full bg-orange-400 animate-ping"></span>
+                    Portal de Gestión & Trazabilidad
                 </div>
-                <div class="stat-item">
-                    <div class="num">98%</div>
-                    <div class="label">Clientes satisfechos</div>
+
+                <div class="space-y-4">
+                    <h1 class="text-4xl xl:text-5xl font-extrabold tracking-tight text-white leading-tight">
+                        Precisión automotriz con <span class="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-amber-300 to-yellow-400">control en tiempo real</span>.
+                    </h1>
+                    <p class="text-slate-300 text-base xl:text-lg leading-relaxed font-normal">
+                        Monitorea el progreso de tu vehículo, revisa cotizaciones, recibe actualizaciones con fotos y descarga tus facturas al instante.
+                    </p>
                 </div>
-                <div class="stat-item">
-                    <div class="num">24h</div>
-                    <div class="label">Respuesta promedio</div>
+
+                <!-- Métricas destacadas -->
+                <div class="grid grid-cols-3 gap-4 pt-6 border-t border-white/10">
+                    <div class="bg-white/5 backdrop-blur-sm border border-white/10 p-4 rounded-2xl">
+                        <p class="text-2xl xl:text-3xl font-black text-orange-400">+500</p>
+                        <p class="text-xs font-medium text-slate-400 mt-1 uppercase tracking-wider">Vehículos atendidos</p>
+                    </div>
+                    <div class="bg-white/5 backdrop-blur-sm border border-white/10 p-4 rounded-2xl">
+                        <p class="text-2xl xl:text-3xl font-black text-emerald-400">98%</p>
+                        <p class="text-xs font-medium text-slate-400 mt-1 uppercase tracking-wider">Clientes conformes</p>
+                    </div>
+                    <div class="bg-white/5 backdrop-blur-sm border border-white/10 p-4 rounded-2xl">
+                        <p class="text-2xl xl:text-3xl font-black text-amber-300">100%</p>
+                        <p class="text-xs font-medium text-slate-400 mt-1 uppercase tracking-wider">Digital & Seguro</p>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    {{-- Panel derecho --}}
-    <div class="right-panel">
+        <!-- ══════════════════════════════════════════════════
+             PANEL DERECHO: Formulario de Login Moderno
+        ══════════════════════════════════════════════════ -->
+        <div class="flex-1 flex flex-col justify-center px-6 py-12 sm:px-12 lg:px-16 xl:px-24 bg-slate-900 border-l border-slate-800/80">
+            <div class="mx-auto w-full max-w-md">
 
-        <div class="logo-area">
-            <div class="logo-icon"><i class="bi bi-car-front-fill"></i></div>
-            <div>
-                <div style="font-weight:800;font-size:1rem;color:#0f172a">Taller Latonería</div>
-                <div style="font-size:.75rem;color:#94a3b8">Sistema de gestión</div>
+                <!-- Header para móviles -->
+                <div class="lg:hidden mb-8 text-center">
+                    <a href="{{ route('inicio') }}" class="inline-flex items-center gap-3">
+                        <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center shadow-lg shadow-orange-500/25">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z"/>
+                            </svg>
+                        </div>
+                        <span class="text-xl font-black text-white">Taller Latonería</span>
+                    </a>
+                </div>
+
+                <!-- Título del formulario -->
+                <div class="mb-8">
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">Iniciar Sesión</h2>
+                    <p class="text-slate-400 text-sm mt-2">
+                        Accede a tu cuenta según tu rol asignado (Cliente, Técnico o Administrador).
+                    </p>
+                </div>
+
+                <!-- Alertas de Éxito / Error -->
+                @if(session('success'))
+                    <div class="mb-6 p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-sm flex items-center gap-3 animate-fade-in">
+                        <svg class="w-5 h-5 flex-shrink-0 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <span class="font-medium">{{ session('success') }}</span>
+                    </div>
+                @endif
+
+                @if($errors->any())
+                    <div class="mb-6 p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-sm space-y-1">
+                        <div class="flex items-center gap-2 font-semibold text-rose-200">
+                            <svg class="w-5 h-5 flex-shrink-0 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                            </svg>
+                            <span>No se pudo iniciar sesión</span>
+                        </div>
+                        <ul class="list-disc list-inside text-xs pl-6 space-y-0.5 text-rose-300/90">
+                            @foreach($errors->all() as $err)
+                                <li>{{ $err }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
+                <!-- Píldoras de Acceso Rápido / Demo Roles -->
+                <div class="mb-6 p-3.5 rounded-2xl bg-slate-950/60 border border-slate-800">
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                        <svg class="w-3.5 h-3.5 text-orange-400" fill="currentColor" viewBox="0 0 20 20"><path d="M11 3a1 1 0 10-2 0v1a1 1 0 102 0V3zM15.657 5.757a1 1 0 00-1.414-1.414l-.707.707a1 1 0 001.414 1.414l.707-.707zM18 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zM5.05 6.464A1 1 0 106.464 5.05l-.707-.707a1 1 0 00-1.414 1.414l.707.707zM5 10a1 1 0 01-1 1H3a1 1 0 110-2h1a1 1 0 011 1zM8 16v-1h4v1a2 2 0 11-4 0zM12 14c.015-.34.208-.646.477-.859a4 4 0 10-4.954 0c.27.213.462.519.477.859h4z"/></svg>
+                        Relleno rápido de credenciales:
+                    </p>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button type="button" onclick="fillCreds('cliente@taller.com', 'Cliente123!')" 
+                                class="px-3 py-1.5 rounded-xl bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/30 text-purple-300 text-xs font-semibold transition text-center hover:scale-102">
+                            👤 Cliente
+                        </button>
+                        <button type="button" onclick="fillCreds('tecnico@taller.com', 'Tecnico123!')" 
+                                class="px-3 py-1.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs font-semibold transition text-center hover:scale-102">
+                            🔧 Técnico
+                        </button>
+                        <button type="button" onclick="fillCreds('admin@taller.com', 'Admin123!')" 
+                                class="px-3 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-semibold transition text-center hover:scale-102">
+                            👑 Admin
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Formulario -->
+                <form method="POST" action="{{ route('login.post') }}" class="space-y-5" id="loginForm">
+                    @csrf
+
+                    <!-- Campo Correo -->
+                    <div>
+                        <label for="correo" class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
+                            Correo electrónico
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"/>
+                                </svg>
+                            </div>
+                            <input 
+                                type="email" 
+                                name="correo" 
+                                id="correo"
+                                value="{{ old('correo') }}"
+                                required 
+                                autofocus
+                                placeholder="tu@correo.com"
+                                class="w-full pl-10 pr-4 py-3 bg-slate-950/80 border border-slate-700 rounded-xl text-white placeholder-slate-500 text-sm focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 transition-all shadow-sm"
+                            >
+                        </div>
+                    </div>
+
+                    <!-- Campo Contraseña -->
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <label for="passwordInput" class="block text-xs font-bold text-slate-300 uppercase tracking-wider">
+                                Contraseña
+                            </label>
+                            <a href="{{ route('password.forgot') }}" class="text-xs font-semibold text-orange-400 hover:text-orange-300 transition-colors">
+                                ¿La olvidaste?
+                            </a>
+                        </div>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                                </svg>
+                            </div>
+                            <input 
+                                type="password" 
+                                name="password" 
+                                id="passwordInput"
+                                required
+                                placeholder="••••••••"
+                                class="w-full pl-10 pr-11 py-3 bg-slate-950/80 border border-slate-700 rounded-xl text-white placeholder-slate-500 text-sm focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 transition-all shadow-sm"
+                            >
+                            <button type="button" onclick="togglePassword()" 
+                                    class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-white transition-colors"
+                                    aria-label="Ver u ocultar contraseña">
+                                <svg id="eyeIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Recordar Sesión -->
+                    <div class="flex items-center justify-between">
+                        <label class="flex items-center gap-2 cursor-pointer select-none">
+                            <input type="checkbox" name="remember" value="1" 
+                                   class="w-4 h-4 rounded bg-slate-950 border-slate-700 text-orange-500 focus:ring-orange-500/20 focus:ring-offset-0">
+                            <span class="text-xs font-medium text-slate-400">Mantener sesión iniciada</span>
+                        </label>
+                    </div>
+
+                    <!-- Botón de Ingreso -->
+                    <button 
+                        type="submit" 
+                        class="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white font-bold text-sm shadow-lg shadow-orange-500/25 hover:shadow-orange-500/35 transition-all duration-200 transform active:scale-98 flex items-center justify-center gap-2"
+                    >
+                        <span>Ingresar al Sistema</span>
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                        </svg>
+                    </button>
+                </form>
+
+                <!-- Divisor -->
+                <div class="relative my-8">
+                    <div class="absolute inset-0 flex items-center">
+                        <div class="w-full border-t border-slate-800"></div>
+                    </div>
+                    <div class="relative flex justify-center text-xs">
+                        <span class="px-4 bg-slate-900 text-slate-500 font-semibold uppercase tracking-wider">¿Nuevo por aquí?</span>
+                    </div>
+                </div>
+
+                <!-- Enlace a Registro -->
+                <div class="text-center space-y-3">
+                    <a href="{{ route('register') }}" 
+                       class="w-full inline-flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-slate-800/80 hover:bg-slate-800 text-slate-200 hover:text-white font-semibold text-sm border border-slate-700/80 hover:border-slate-600 transition-all">
+                        <svg class="w-4 h-4 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+                        </svg>
+                        <span>Crear cuenta de Cliente</span>
+                    </a>
+
+                    <div class="pt-2">
+                        <a href="{{ route('inicio') }}" class="text-xs font-semibold text-slate-500 hover:text-slate-300 transition-colors inline-flex items-center gap-1">
+                            ← Volver al sitio principal
+                        </a>
+                    </div>
+                </div>
+
             </div>
         </div>
 
-        <h2>Bienvenido de vuelta</h2>
-        <p class="subtitle">Ingresa tus credenciales para acceder al sistema</p>
-
-        {{-- Mensajes --}}
-        @if(session('success'))
-            <div class="alert-success-msg">
-                <i class="bi bi-check-circle me-1"></i>{{ session('success') }}
-            </div>
-        @endif
-
-        @if($errors->any())
-            <div class="alert-error">
-                <i class="bi bi-exclamation-circle mt-1"></i>
-                <div>
-                    @foreach($errors->all() as $e)
-                        <div>{{ $e }}</div>
-                    @endforeach
-                </div>
-            </div>
-        @endif
-
-        <form method="POST" action="{{ route('login.post') }}" id="loginForm" enctype="application/x-www-form-urlencoded">
-            @csrf
-
-            {{-- Correo --}}
-            <label class="form-label">Correo electrónico</label>
-            <div class="input-group-custom">
-                <i class="bi bi-envelope icon"></i>
-                <input
-                    type="email"
-                    name="correo"
-                    value="{{ old('correo') }}"
-                    placeholder="tu@correo.com"
-                    required
-                    autofocus
-                    class="{{ $errors->has('correo') ? 'border-red-500' : '' }}"
-                >
-            </div>
-
-            {{-- Contraseña --}}
-            <label class="form-label">Contraseña</label>
-            <div class="input-group-custom">
-                <i class="bi bi-lock icon"></i>
-                <input
-                    type="password"
-                    name="password"
-                    id="passwordInput"
-                    placeholder="••••••••"
-                    required
-                >
-                <button type="button" class="toggle-pass" onclick="togglePassword()">
-                    <i class="bi bi-eye" id="eyeIcon"></i>
-                </button>
-            </div>
-
-            {{-- Recordar --}}
-            <div class="remember-row">
-                <label>
-                    <input type="checkbox" name="remember" style="accent-color:#f97316" value="1">
-                    Recordarme
-                </label>
-            </div>
-
-            <button type="submit" class="btn-login" id="btnLogin">
-                <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
-                    <path fill-rule="evenodd" d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 1h-8A1.5 1.5 0 0 0 0 2.5v9A1.5 1.5 0 0 0 1.5 13h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0v2z"/>
-                    <path fill-rule="evenodd" d="M15.854 5.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 0 1 .708-.708L12.5 7.793l2.646-2.647a.5.5 0 0 1 .708 0z"/>
-                </svg>
-                Ingresar al sistema
-            </button>
-        </form>
-
-        <div class="divider">o</div>
-
-        <p class="footer-link">
-            ¿No tienes cuenta? <a href="{{ route('register') }}">Regístrate como cliente</a>
-        </p>
-
-        <p class="footer-link text-xs mt-3">
-            ¿Olvidaste tu contraseña? <a href="{{ route('password.forgot') }}">Recupérala aquí</a>
-        </p>
-
     </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-function togglePassword() {
-    const input = document.getElementById('passwordInput');
-    const icon  = document.getElementById('eyeIcon');
-    if (input.type === 'password') {
-        input.type = 'text';
-        icon.className = 'bi bi-eye-slash';
-    } else {
-        input.type = 'password';
-        icon.className = 'bi bi-eye';
-    }
-}
+    <!-- Scripts de interactividad -->
+    <script>
+        function togglePassword() {
+            const input = document.getElementById('passwordInput');
+            const icon = document.getElementById('eyeIcon');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.innerHTML = `
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18"/>
+                `;
+            } else {
+                input.type = 'password';
+                icon.innerHTML = `
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                `;
+            }
+        }
 
-// Verificar que el formulario esté funcionando correctamente
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM Loaded');
-    
-    const form = document.getElementById('loginForm');
-    console.log('Formulario encontrado:', !!form);
-    
-    if (form) {
-        form.addEventListener('submit', function(e) {
-            console.log('Submit event triggered');
-            console.log('Form action:', form.action);
-            console.log('Form method:', form.method);
-        });
-    }
-});
-</script>
+        function fillCreds(email, pass) {
+            document.getElementById('correo').value = email;
+            document.getElementById('passwordInput').value = pass;
+        }
+    </script>
 </body>
 </html>

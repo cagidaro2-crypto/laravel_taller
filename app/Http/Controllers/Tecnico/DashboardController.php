@@ -34,6 +34,29 @@ class DashboardController extends Controller
             )
         )->count();
 
-        return view('tecnico.dashboard', compact('misOrdenes', 'citasHoy', 'vehiculosEnTaller'));
+        $ultimasOrdenes = OrdenTrabajo::where('id_usuario', Auth::id())
+            ->with(['vehiculo.cliente.usuario', 'estado'])
+            ->latest()
+            ->take(4)
+            ->get();
+
+        $proximasCitas = Cita::whereDate('fecha', '>=', today())
+            ->where('estado', '!=', 'Cancelado')
+            ->where(function($q) {
+                $q->where('id_usuario', Auth::id())
+                  ->orWhereNull('id_usuario');
+            })
+            ->with(['cliente.usuario', 'vehiculo'])
+            ->orderBy('fecha')
+            ->take(3)
+            ->get();
+
+        return view('tecnico.dashboard', compact(
+            'misOrdenes',
+            'citasHoy',
+            'vehiculosEnTaller',
+            'ultimasOrdenes',
+            'proximasCitas'
+        ));
     }
 }

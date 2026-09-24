@@ -6,10 +6,10 @@
     <title>@yield('title','Panel') — @yield('role') | Taller Latonería</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css','resources/js/app.js'])
 </head>
-<body style="height:100%; display:flex; flex-direction:column; font-family:'Inter',sans-serif; -webkit-font-smoothing:antialiased;">
+<body style="height:100%; display:flex; flex-direction:column; font-family:'Plus Jakarta Sans','Inter',sans-serif; -webkit-font-smoothing:antialiased;">
 
 {{-- Overlay mobile --}}
 <div class="overlay" id="overlay" onclick="closeSidebar()"></div>
@@ -60,8 +60,8 @@
                 
                 {{-- User Menu Dropdown --}}
                 <div style="position:relative;">
-                    <button onclick="toggleUserMenu()" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-100 transition-colors" style="border:1px solid #e2e8f0;">
-                        <div style="width:32px; height:32px; background:#f59e0b; border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-weight:600; font-size:12px;">
+                    <button onclick="toggleUserMenu()" class="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-slate-100 transition-colors" style="border:1px solid #e2e8f0;">
+                        <div style="width:32px; height:32px; background:linear-gradient(135deg, #f97316, #ea580c); box-shadow:0 2px 8px rgba(234,88,12,0.3); border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-weight:700; font-size:12px;">
                             {{ strtoupper(substr(auth()->user()->nombre, 0, 2)) }}
                         </div>
                         <svg id="userMenuIcon" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" style="width:16px; height:16px; transition:transform 0.3s;">

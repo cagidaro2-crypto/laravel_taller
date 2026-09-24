@@ -41,12 +41,23 @@ class DashboardController extends Controller
             ->where('estado', 'Pendiente')
             ->count();
 
+        $ultimosVehiculos = Vehiculo::where('id_cliente', $clienteId)->with('estado')->latest()->take(3)->get();
+        $ultimasFacturas  = Factura::where('id_cliente', $clienteId)->orderByDesc('fecha')->take(3)->get();
+        $proximasCitas    = Cita::where('id_cliente', $clienteId)
+            ->where('estado', '!=', 'Cancelado')
+            ->orderByDesc('fecha')
+            ->take(2)
+            ->get();
+
         return view('cliente.dashboard', compact(
             'misVehiculos',
             'misCitas',
             'cotizacionesPendientes',
             'misFacturas',
-            'facturasPendientes'
+            'facturasPendientes',
+            'ultimosVehiculos',
+            'ultimasFacturas',
+            'proximasCitas'
         ));
     }
 }

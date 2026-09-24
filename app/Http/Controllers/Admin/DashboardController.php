@@ -21,6 +21,16 @@ class DashboardController extends Controller
             ->where('estado', '!=', 'Cancelado')
             ->count();
 
-        return view('admin.dashboard', compact('totalOrdenes', 'totalClientes', 'bajosStock', 'citasHoy'));
+        $ultimasOrdenes     = OrdenTrabajo::with(['vehiculo.cliente.usuario', 'estado'])->latest()->take(4)->get();
+        $productosBajoStock = Inventario::with('producto')->whereRaw('cantidad <= stock_minimo')->take(4)->get();
+
+        return view('admin.dashboard', compact(
+            'totalOrdenes',
+            'totalClientes',
+            'bajosStock',
+            'citasHoy',
+            'ultimasOrdenes',
+            'productosBajoStock'
+        ));
     }
 }
