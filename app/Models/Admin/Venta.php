@@ -15,6 +15,7 @@ class Venta extends Model
 
     protected $fillable = [
         'id_cliente',
+        'id_vehiculo',
         'id_usuario',
         'fecha',
         'subtotal',
@@ -33,6 +34,11 @@ class Venta extends Model
     public function cliente(): BelongsTo
     {
         return $this->belongsTo(Cliente::class, 'id_cliente', 'id_cliente');
+    }
+
+    public function vehiculo(): BelongsTo
+    {
+        return $this->belongsTo(\App\Models\Tecnico\Vehiculo::class, 'id_vehiculo', 'id_vehiculo');
     }
 
     public function usuario(): BelongsTo

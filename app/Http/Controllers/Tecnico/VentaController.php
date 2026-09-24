@@ -37,13 +37,16 @@ class VentaController extends Controller
         })->with('usuario')->get();
         
         $productos = Producto::where('activo', true)->with('inventario')->get();
-        return view('tecnico.ventas.create', compact('clientes', 'productos'));
+        $vehiculos = []; // Inicialmente vacío, se llenará con AJAX
+        
+        return view('tecnico.ventas.create', compact('clientes', 'productos', 'vehiculos'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
             'id_cliente'          => 'required|exists:clientes,id_cliente',
+            'id_vehiculo'         => 'nullable|exists:vehiculos,id_vehiculo',
             'fecha'               => 'required|date|date_format:Y-m-d',
             'items'               => 'required|array|min:1',
             'items.*.id_producto' => 'required|integer|exists:productos,id_producto',

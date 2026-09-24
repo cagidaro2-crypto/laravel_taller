@@ -85,9 +85,10 @@ class OrdenTrabajoController extends Controller
             $vehiculo->historial()->create([
                 'estado_anterior' => $estadoAnterior,
                 'estado_nuevo'    => $estadoNuevo,
-                'descripcion'     => $request->descripcion,
-                'id_orden'        => $ordene->id_orden,
+                'descripcion'     => $request->descripcion ?? 'Cambio de estado de vehículo',
                 'id_usuario'      => Auth::id(),
+                'fecha'           => now()->toDateString(),
+                'valor'           => 0,
             ]);
         }
 
