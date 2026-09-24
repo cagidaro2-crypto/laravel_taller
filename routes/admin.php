@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\InventarioController;
 use App\Http\Controllers\Admin\FacturaController;
 use App\Http\Controllers\Admin\VentaController;
 use App\Http\Controllers\Admin\ReporteController;
+use App\Http\Controllers\Admin\VehiculoController;
 
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:Administrador'])->group(function () {
 
@@ -59,4 +60,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:Administrador'
     Route::get('reportes/ingresos', [ReporteController::class, 'ingresos'])->name('reportes.ingresos');
     Route::get('reportes/consumo', [ReporteController::class, 'consumo'])->name('reportes.consumo');
     Route::get('reportes/exportar', [ReporteController::class, 'exportarCSV'])->name('reportes.exportar');
+
+    // RF-21 al RF-23: Vehículos
+    Route::resource('vehiculos', VehiculoController::class)->only(['index', 'show']);
 });
