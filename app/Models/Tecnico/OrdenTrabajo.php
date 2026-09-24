@@ -80,17 +80,22 @@ class OrdenTrabajo extends Model
     // BUG #2: Corregir accessor de total_materiales
     public function getTotalMaterialesAttribute(): float
     {
-        return (float) $this->consumoMateriales->sum('subtotal');
+        if ($this->relationLoaded('consumoMateriales')) {
+            return (float) $this->consumoMateriales->sum('subtotal');
+        }
+        return 0.0;
     }
 
-    // BUG #2: Corregir accessor de cuota_reparos - ahora usa getTotalMaterialesAttribute()
     public function getCuotaReparosAttribute(): float
     {
-        $totalServicios = (float) ($this->servicios->sum('valor_unitario') ?? 0);
-        $totalProductos = (float) ($this->productos->sum('subtotal') ?? 0);
+        $totalServicios = $this->relationLoaded('servicios') ? (float) $this->servicios->sum('subtotal') : 0.0;
+        $totalProductos = $this->relationLoaded('productos') ? (float) $this->productos->sum('subtotal') : 0.0;
         $totalMateriales = $this->getTotalMaterialesAttribute();
         
         $subtotal = $totalServicios + $totalProductos + $totalMateriales;
+        if ($subtotal <= 0 && $this->total > 0) {
+            return (float) $this->total;
+        }
         $impuesto = $subtotal * 0.19;
         
         return round($subtotal + $impuesto, 2);
