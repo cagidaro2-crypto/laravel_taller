@@ -111,12 +111,13 @@ class CotizacionController extends Controller
             return back()->with('error', 'Solo se pueden convertir cotizaciones aprobadas.');
         }
 
-        DB::transaction(function () use ($cotizacione) {
+        $factura = DB::transaction(function () use ($cotizacione) {
             $numero = 'F-' . str_pad(Factura::count() + 1, 6, '0', STR_PAD_LEFT);
 
-            Factura::create([
+            $factura = Factura::create([
                 'id_cliente'     => $cotizacione->id_cliente,
                 'id_orden'       => null,
+                'id_cotizacion'  => $cotizacione->id_cotizacion,
                 'numero_factura' => $numero,
                 'fecha'          => now()->toDateString(),
                 'subtotal'       => $cotizacione->subtotal,
@@ -124,10 +125,24 @@ class CotizacionController extends Controller
                 'total'          => $cotizacione->total,
                 'estado'         => 'Pendiente',
             ]);
+
+            // Notificar al cliente
+            if ($cotizacione->cliente?->id_usuario) {
+                \App\Models\Admin\Notificacion::create([
+                    'id_usuario_destinatario' => $cotizacione->cliente->id_usuario,
+                    'id_vehiculo'            => $cotizacione->id_vehiculo,
+                    'tipo'                   => 'factura_generada',
+                    'titulo'                 => "Factura Generada #{$numero}",
+                    'descripcion'            => "Se ha generado la factura {$numero} correspondiente a tu cotización #{$cotizacione->id_cotizacion}. Ya puedes consultarla y descargarla en PDF desde tu portal.",
+                    'leida'                  => false,
+                ]);
+            }
+
+            return $factura;
         });
 
-        return redirect()->route('admin.cotizaciones.show', $cotizacione)
-            ->with('success', 'Factura generada exitosamente.');
+        return redirect()->route('admin.facturas.show', $factura)
+            ->with('success', "Factura {$factura->numero_factura} generada exitosamente a partir de la cotización.");
     }
 
     // TDLP-010 escenario 6: Rechazar cotización

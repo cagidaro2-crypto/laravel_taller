@@ -6,15 +6,15 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\PasswordController;
 
 // Auth
-Route::get('/login', [LoginController::class, 'showLogin'])->name('login')->middleware('guest');
-Route::post('/login', [LoginController::class, 'login'])->name('login.post')->middleware('guest');
+Route::get('/login', [LoginController::class, 'showLogin'])->name('login');
+Route::post('/login', [LoginController::class, 'login'])->name('login.post');
 
 // Login simple para testing
-Route::get('/login-simple', fn() => view('auth.login-simple'))->name('login.simple')->middleware('guest');
-Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+Route::get('/login-simple', fn() => view('auth.login-simple'))->name('login.simple');
+Route::match(['get', 'post'], '/logout', [LoginController::class, 'logout'])->name('logout');
 
-Route::get('/register', [RegisterController::class, 'showRegister'])->name('register')->middleware('guest');
-Route::post('/register', [RegisterController::class, 'register'])->name('register.post')->middleware('guest');
+Route::get('/register', [RegisterController::class, 'showRegister'])->name('register');
+Route::post('/register', [RegisterController::class, 'register'])->name('register.post');
 
 // Cambio de contraseña (solo autenticados)
 Route::middleware('auth')->group(function () {

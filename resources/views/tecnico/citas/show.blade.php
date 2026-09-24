@@ -33,7 +33,7 @@
                     </div>
                     <div>
                         <p class="text-sm text-slate-600 uppercase tracking-wide font-semibold mb-2">Hora</p>
-                        <p class="text-2xl font-bold text-slate-900">{{ \Carbon\Carbon::createFromFormat('H:i:s', $cita->hora)->format('H:i') }}</p>
+                        <p class="text-2xl font-bold text-slate-900">{{ date('h:i A', strtotime($cita->hora)) }}</p>
                     </div>
                 </div>
 
@@ -55,7 +55,7 @@
                         </div>
                         <div>
                             <p class="font-bold text-slate-900 text-lg">{{ $cita->cliente->usuario->nombre }}</p>
-                            <p class="text-slate-600">{{ $cita->cliente->usuario->email }}</p>
+                            <p class="text-slate-600">{{ $cita->cliente->usuario->correo }}</p>
                             @if($cita->cliente->usuario->telefono)
                                 <p class="text-slate-600 text-sm">{{ $cita->cliente->usuario->telefono }}</p>
                             @endif

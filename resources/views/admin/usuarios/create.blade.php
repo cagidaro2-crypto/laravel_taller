@@ -47,6 +47,22 @@
                            placeholder="Ej: 300 123 4567">
                 </div>
             </div>
+
+            <div class="form-grid-2">
+                <div class="form-group">
+                    <label class="form-label">Identificación / Documento</label>
+                    <input type="text" name="documento" value="{{ old('documento') }}"
+                           class="form-control @error('documento') form-control-error @enderror"
+                           placeholder="Cédula o NIT">
+                    @error('documento')<p class="form-error">{{ $message }}</p>@enderror
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Dirección</label>
+                    <input type="text" name="direccion" value="{{ old('direccion') }}"
+                           class="form-control"
+                           placeholder="Ciudad, Calle o Carrera">
+                </div>
+            </div>
         </div>
 
         <div class="form-section">

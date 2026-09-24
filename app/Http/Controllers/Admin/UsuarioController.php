@@ -7,6 +7,7 @@ use App\Models\Admin\Rol;
 use App\Models\Admin\Usuario;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 
 class UsuarioController extends Controller
 {
@@ -47,17 +48,31 @@ class UsuarioController extends Controller
             'password.required'=> 'Debe completar todos los campos obligatorios antes de continuar.',
         ]);
 
-        $usuario = Usuario::create([
-            'id_rol'   => $request->id_rol,
-            'nombre'   => $request->nombre,
-            'correo'   => $request->correo,
-            'password' => Hash::make($request->password),
-            'telefono' => $request->telefono,
-            'activo'   => true,
-        ]);
+        $usuario = DB::transaction(function () use ($request) {
+            $rol = Rol::find($request->id_rol);
+
+            $usuario = Usuario::create([
+                'id_rol'   => $request->id_rol,
+                'nombre'   => $request->nombre,
+                'correo'   => $request->correo,
+                'password' => Hash::make($request->password),
+                'telefono' => $request->telefono,
+                'activo'   => true,
+            ]);
+
+            if ($rol && $rol->nombre_rol === 'Cliente') {
+                \App\Models\Cliente\Cliente::create([
+                    'id_usuario' => $usuario->id_usuario,
+                    'documento'  => $request->documento ?: ('CLI-' . str_pad($usuario->id_usuario, 6, '0', STR_PAD_LEFT)),
+                    'direccion'  => $request->direccion ?: 'No especificada',
+                ]);
+            }
+
+            return $usuario;
+        });
 
         return redirect()->route('admin.usuarios.index')
-            ->with('success', 'Empleado registrado exitosamente.');
+            ->with('success', 'Usuario registrado exitosamente.');
     }
 
     public function show(Usuario $usuario)

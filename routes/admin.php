@@ -34,6 +34,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:Administrador'
 
     // RF-65 al RF-73: Inventario
     Route::get('inventario', [InventarioController::class, 'index'])->name('inventario.index');
+    Route::get('inventario/{inventario}/edit', [InventarioController::class, 'edit'])->name('inventario.edit');
     Route::patch('inventario/{inventario}', [InventarioController::class, 'update'])->name('inventario.update');
 
     // RF-49 al RF-57: Órdenes de trabajo
@@ -41,7 +42,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:Administrador'
     Route::post('ordenes/{ordene}/factura', [OrdenTrabajoController::class, 'generarFactura'])->name('ordenes.factura');
 
     // RF-39 al RF-48: Cotizaciones
-    Route::resource('cotizaciones', CotizacionController::class)->except(['destroy']);
+    Route::resource('cotizaciones', CotizacionController::class)->only(['index', 'create', 'store', 'show']);
     Route::post('cotizaciones/{cotizacione}/factura', [CotizacionController::class, 'convertirFactura'])->name('cotizaciones.factura');
     Route::patch('cotizaciones/{cotizacione}/rechazar', [CotizacionController::class, 'rechazar'])->name('cotizaciones.rechazar');
 

@@ -138,4 +138,24 @@ class ProductoController extends Controller
         return redirect()->route('admin.productos.index')
             ->with('success', 'Producto desactivado exitosamente.');
     }
+
+    public function destroy(Producto $producto)
+    {
+        $tieneVentas = $producto->ventas()->exists();
+        $tieneOrdenes = $producto->ordenes()->exists();
+        $tieneCotizaciones = $producto->cotizaciones()->exists();
+
+        if ($tieneVentas || $tieneOrdenes || $tieneCotizaciones) {
+            $producto->update(['activo' => false]);
+            return redirect()->route('admin.productos.index')
+                ->with('success', 'El producto tiene registros históricos asociados; ha sido desactivado en lugar de eliminado.');
+        }
+
+        $producto->inventario()->delete();
+        $producto->fotos()->delete();
+        $producto->delete();
+
+        return redirect()->route('admin.productos.index')
+            ->with('success', 'Producto eliminado exitosamente.');
+    }
 }

@@ -75,7 +75,7 @@
                         </div>
                         <div>
                             <p class="font-bold text-slate-900 text-lg">{{ $vehiculo->cliente->usuario->nombre }}</p>
-                            <p class="text-slate-600">{{ $vehiculo->cliente->usuario->email }}</p>
+                            <p class="text-slate-600">{{ $vehiculo->cliente->usuario->correo }}</p>
                             @if($vehiculo->cliente->usuario->telefono)
                                 <p class="text-slate-600 text-sm">{{ $vehiculo->cliente->usuario->telefono }}</p>
                             @endif

@@ -116,9 +116,29 @@
                         </svg>
                         <span class="font-medium">{{ session('success') }}</span>
                     </div>
-                @endif
-
-                @if($errors->any())
+                @auth
+                    <div class="mb-6 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/25 text-amber-200 text-sm space-y-2">
+                        <div class="flex items-center gap-2 font-semibold text-amber-300">
+                            <svg class="w-5 h-5 flex-shrink-0 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <span>Actualmente tienes una sesión iniciada</span>
+                        </div>
+                        <p class="text-xs text-slate-300">
+                            Estás conectado como <strong class="text-white">{{ Auth::user()->nombre }}</strong> (<span class="text-orange-400 font-medium">{{ Auth::user()->rol?->nombre_rol }}</span>). Puedes cambiar de cuenta abajo o:
+                        </p>
+                        <div class="flex items-center gap-3 pt-1">
+                            <a href="{{ match(Auth::user()->rol?->nombre_rol) { 'Administrador' => route('admin.dashboard'), 'Técnico', 'Empleado' => route('tecnico.dashboard'), default => route('cliente.dashboard') } }}" 
+                               class="text-xs font-bold text-amber-400 hover:text-amber-300 underline">
+                                Ir a mi panel actual &rarr;
+                            </a>
+                            <span class="text-slate-600">|</span>
+                            <a href="{{ route('logout') }}" class="text-xs font-bold text-rose-400 hover:text-rose-300 underline">
+                                Cerrar sesión actual
+                            </a>
+                        </div>
+                    </div>
+                @endauth
                     <div class="mb-6 p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-sm space-y-1">
                         <div class="flex items-center gap-2 font-semibold text-rose-200">
                             <svg class="w-5 h-5 flex-shrink-0 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

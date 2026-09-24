@@ -24,29 +24,21 @@ class RegisterController extends Controller
             'documento'  => 'required|string|max:30|unique:clientes,documento',
             'correo'     => 'required|email|max:150|unique:usuarios,correo',
             'telefono'   => 'nullable|string|max:20',
-            'password'   => [
-                'required',
-                'confirmed',
-                'min:8',
-                'regex:/[A-Z]/',
-                'regex:/[0-9]/',
-                'regex:/[@$!%*?&#]/',
-            ],
+            'password'   => 'required|string|min:6|confirmed',
             'direccion'  => 'nullable|string|max:200',
         ], [
-            'nombre.required'      => 'Por favor complete todos los campos obligatorios.',
-            'documento.required'   => 'Por favor complete todos los campos obligatorios.',
-            'documento.unique'     => 'Ya existe una cuenta registrada con este correo o identificación.',
-            'correo.required'      => 'Por favor complete todos los campos obligatorios.',
+            'nombre.required'      => 'El nombre completo es obligatorio.',
+            'documento.required'   => 'El número de identificación o cédula es obligatorio.',
+            'documento.unique'     => 'Ya existe una cuenta registrada con este número de identificación.',
+            'correo.required'      => 'El correo electrónico es obligatorio.',
             'correo.email'         => 'Ingrese un correo electrónico válido.',
-            'correo.unique'        => 'Ya existe una cuenta registrada con este correo o identificación.',
-            'password.required'    => 'Por favor complete todos los campos obligatorios.',
-            'password.min'         => 'La contraseña debe tener al menos 8 caracteres, una mayúscula, un número y un carácter especial.',
-            'password.regex'       => 'La contraseña debe tener al menos 8 caracteres, una mayúscula, un número y un carácter especial.',
+            'correo.unique'        => 'Ya existe una cuenta registrada con este correo electrónico.',
+            'password.required'    => 'La contraseña es obligatoria.',
+            'password.min'         => 'La contraseña debe tener al menos 6 caracteres.',
             'password.confirmed'   => 'Las contraseñas no coinciden.',
         ]);
 
-        DB::transaction(function () use ($request) {
+        $usuario = DB::transaction(function () use ($request) {
             $rolCliente = Rol::where('nombre_rol', 'Cliente')->firstOrFail();
 
             $usuario = Usuario::create([
@@ -63,9 +55,15 @@ class RegisterController extends Controller
                 'documento'  => $request->documento,
                 'direccion'  => $request->direccion,
             ]);
+
+            return $usuario;
         });
 
-        return redirect()->route('login')
-            ->with('success', 'Registro exitoso. Ya puede iniciar sesión con sus credenciales.');
+        // Iniciar sesión automáticamente y redirigir al portal del cliente
+        \Illuminate\Support\Facades\Auth::login($usuario);
+        $request->session()->regenerate();
+
+        return redirect()->route('cliente.dashboard')
+            ->with('success', '¡Cuenta creada con éxito! Bienvenido a tu portal de cliente.');
     }
 }

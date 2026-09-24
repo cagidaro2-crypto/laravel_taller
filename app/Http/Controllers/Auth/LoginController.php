@@ -52,8 +52,9 @@ class LoginController extends Controller
         $usuario = Usuario::where('correo', $request->correo)->first();
 
         // 4. Validar credenciales
+        $decay = app()->isLocal() ? 60 : 900;
         if (!$usuario || !Hash::check($request->password, $usuario->password)) {
-            RateLimiter::hit($key, 900); // 15 minutos
+            RateLimiter::hit($key, $decay);
             Log::warning('Invalid credentials', ['correo' => $request->correo]);
             
             return back()->withErrors([

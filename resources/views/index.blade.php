@@ -35,12 +35,22 @@
 
         {{-- CTA --}}
         <div class="flex items-center gap-3">
-            <a href="{{ route('login') }}" class="text-sm font-semibold text-slate-700 hover:text-orange-500 transition-colors hidden sm:block">
-                Iniciar sesión
-            </a>
-            <a href="{{ route('register') }}" class="bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold px-4 py-2 rounded-xl transition-colors">
-                Registrarse
-            </a>
+            @auth
+                <a href="{{ match(Auth::user()->rol?->nombre_rol) { 'Administrador' => route('admin.dashboard'), 'Técnico', 'Empleado' => route('tecnico.dashboard'), default => route('cliente.dashboard') } }}" 
+                   class="bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold px-4 py-2 rounded-xl transition-colors">
+                    Ir a mi Panel ({{ Auth::user()->nombre }})
+                </a>
+                <a href="{{ route('logout') }}" class="text-sm font-semibold text-rose-500 hover:text-rose-600 transition-colors">
+                    Cerrar sesión
+                </a>
+            @else
+                <a href="{{ route('login') }}" class="text-sm font-semibold text-slate-700 hover:text-orange-500 transition-colors hidden sm:block">
+                    Iniciar sesión
+                </a>
+                <a href="{{ route('register') }}" class="bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold px-4 py-2 rounded-xl transition-colors">
+                    Registrarse
+                </a>
+            @endauth
         </div>
     </div>
 </header>
