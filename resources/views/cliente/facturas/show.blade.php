@@ -39,7 +39,7 @@
                         default   => 'bg-amber-100 text-amber-800 border-amber-200',
                     };
                 @endphp
-                <span class="px-3 py-1 rounded-full text-xs font-bold border {{ $badgeStyle }}">
+                <span id="estado-badge" class="px-3 py-1 rounded-full text-xs font-bold border {{ $badgeStyle }}">
                     {{ $factura->estado }}
                 </span>
             </div>
@@ -52,6 +52,14 @@
                 <div class="text-xs text-slate-600">
                     Asociada a: <span class="font-semibold text-slate-900">Cotización #{{ $factura->cotizacion->id_cotizacion }}</span>
                 </div>
+            @endif
+
+            {{-- Botón Marcar Como Pagada --}}
+            @if($factura->estado !== 'Pagada' && $factura->estado !== 'Anulada')
+                <button onclick="marcarPagada()" id="btn-pago" class="inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition shadow-sm shadow-emerald-200">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <span>Marcar como Pagada</span>
+                </button>
             @endif
         </div>
 
@@ -229,14 +237,14 @@
                         $saldo = $factura->saldo_pendiente;
                     @endphp
 
-                    @if($totalPagado > 0)
+                    @if($totalPagado > 0 || $factura->estado === 'Pagada')
                         <div class="flex justify-between text-xs text-emerald-700 font-semibold pt-1">
                             <span>Total Pagado:</span>
-                            <span>-${{ number_format($totalPagado, 2) }}</span>
+                            <span id="total-pagado">-${{ number_format($totalPagado > 0 ? $totalPagado : $factura->total, 2) }}</span>
                         </div>
-                        <div class="flex justify-between text-sm font-bold pt-2 border-t border-dashed border-slate-200 {{ $saldo > 0 ? 'text-amber-700' : 'text-emerald-700' }}">
+                        <div id="saldo-section" class="flex justify-between text-sm font-bold pt-2 border-t border-dashed border-slate-200 {{ $saldo > 0 ? 'text-amber-700' : 'text-emerald-700' }}">
                             <span>Saldo Pendiente:</span>
-                            <span>${{ number_format($saldo, 2) }}</span>
+                            <span id="saldo-pendiente">${{ number_format($saldo, 2) }}</span>
                         </div>
                     @endif
                 </div>
@@ -273,4 +281,96 @@
         </div>
     </div>
 </div>
+
+<script>
+    function marcarPagada() {
+        const btn = document.getElementById('btn-pago');
+        const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+        
+        if (!confirm('¿Confirmas que esta factura ha sido pagada?')) {
+            return;
+        }
+
+        btn.disabled = true;
+        btn.innerHTML = '<svg class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg> Procesando...';
+
+        fetch('{{ route("cliente.facturas.marcar-pagada", $factura) }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': token,
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({})
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Actualizar badge de estado
+                const badge = document.getElementById('estado-badge');
+                badge.textContent = 'Pagada';
+                badge.className = 'px-3 py-1 rounded-full text-xs font-bold border bg-emerald-100 text-emerald-800 border-emerald-200';
+
+                // Actualizar total pagado
+                document.getElementById('total-pagado').textContent = `-${{ $factura->total }}`;
+
+                // Actualizar saldo pendiente
+                document.getElementById('saldo-pendiente').textContent = '$0.00';
+                document.getElementById('saldo-section').className = 'flex justify-between text-sm font-bold pt-2 border-t border-dashed border-slate-200 text-emerald-700';
+
+                // Ocultar botón
+                btn.remove();
+
+                // Mostrar mensaje de éxito
+                showNotification('✓ Factura marcada como pagada', 'success');
+
+                // Recargar la página después de 2 segundos
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2000);
+            } else {
+                showNotification(data.message || 'Error al procesar el pago', 'error');
+                btn.disabled = false;
+                btn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg><span>Marcar como Pagada</span>';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('Error de conexión', 'error');
+            btn.disabled = false;
+            btn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg><span>Marcar como Pagada</span>';
+        });
+    }
+
+    function showNotification(message, type) {
+        const notification = document.createElement('div');
+        const bgColor = type === 'success' ? 'bg-emerald-100 border-emerald-200 text-emerald-800' : 'bg-rose-100 border-rose-200 text-rose-800';
+        
+        notification.className = `fixed top-4 right-4 px-6 py-3 rounded-lg border ${bgColor} shadow-lg z-50 animate-fade-in`;
+        notification.innerHTML = message;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
+    }
+</script>
+
+<style>
+    @keyframes fade-in {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .animate-fade-in {
+        animation: fade-in 0.3s ease-in-out;
+    }
+</style>
 @endsection

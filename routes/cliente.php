@@ -33,6 +33,7 @@ Route::prefix('cliente')->name('cliente.')->middleware(['auth', 'role:Cliente'])
     Route::get('facturas', [FacturaController::class, 'index'])->name('facturas.index');
     Route::get('facturas/{factura}', [FacturaController::class, 'show'])->name('facturas.show');
     Route::get('facturas/{factura}/pdf', [FacturaController::class, 'pdf'])->name('facturas.pdf');
+    Route::post('facturas/{factura}/marcar-pagada', [FacturaController::class, 'marcarPagada'])->name('facturas.marcar-pagada');
 
     // RF-20: Historial
     Route::resource('historial', HistorialVehiculoController::class)->only(['index', 'show']);

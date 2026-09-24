@@ -108,10 +108,32 @@ class LoginController extends Controller
     {
         Log::info('Logout', ['usuario_id' => Auth::id()]);
         
+        // Obtener usuario antes de logout (para logging)
+        $usuarioId = Auth::id();
+        
+        // Logout y destruir sesión completamente
         Auth::logout();
+        
+        // Invalidar sesión
         $request->session()->invalidate();
+        
+        // Regenerar token CSRF
         $request->session()->regenerateToken();
+        
+        // Limpiar cookies de autenticación
+        if (isset($_COOKIE['XSRF-TOKEN'])) {
+            setcookie('XSRF-TOKEN', '', time() - 3600, '/');
+        }
+        if (isset($_COOKIE['laravel_session'])) {
+            setcookie('laravel_session', '', time() - 3600, '/');
+        }
 
-        return redirect()->route('login')->with('success', 'Sesión cerrada.');
+        Log::info('Logout completed', ['usuario_id' => $usuarioId]);
+        
+        return redirect()
+            ->route('login')
+            ->with('success', 'Sesión cerrada correctamente.')
+            ->withoutCookie('XSRF-TOKEN')
+            ->withoutCookie('laravel_session');
     }
 }
