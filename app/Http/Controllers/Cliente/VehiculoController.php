@@ -41,12 +41,16 @@ class VehiculoController extends Controller
             'modelo' => 'required|string|max:80',
             'anio'   => 'nullable|digits:4|integer|min:1900|max:' . (date('Y') + 1),
             'color'  => 'nullable|string|max:50',
+            'fotos'  => 'nullable|array',
+            'fotos.*' => 'image|mimes:jpg,jpeg,png|max:10240',
         ], [
             'placa.required' => 'Debe completar todos los campos obligatorios.',
             'placa.unique'   => 'La placa ingresada ya está registrada en el sistema.',
             'placa.regex'    => 'El formato de la placa no es válido. Use el formato: ABC-123.',
             'marca.required' => 'Debe completar todos los campos obligatorios.',
             'modelo.required'=> 'Debe completar todos los campos obligatorios.',
+            'fotos.*.mimes'  => 'El formato del archivo no es válido. Se aceptan únicamente: JPG, PNG, JPEG.',
+            'fotos.*.max'    => 'El archivo supera el tamaño máximo permitido de 10 MB.',
         ]);
 
         // Estado por defecto — id del estado "Ingresado" o similar
@@ -57,7 +61,7 @@ class VehiculoController extends Controller
                 ->withErrors(['error' => 'No hay estados de vehículo configurados en el sistema. Comunícate con el administrador.']);
         }
 
-        Vehiculo::create([
+        $vehiculo = Vehiculo::create([
             'id_cliente' => $this->clienteId(),
             'id_estado'  => $estadoDefault->id_estado,
             'placa'      => strtoupper($request->placa),
@@ -68,6 +72,17 @@ class VehiculoController extends Controller
             'tipo'       => $request->tipo,
             'vin'        => $request->vin,
         ]);
+
+        // Procesar y guardar fotos si las hay
+        if ($request->hasFile('fotos')) {
+            foreach ($request->file('fotos') as $foto) {
+                $path = $foto->store('vehiculos', 'public');
+                $vehiculo->fotos()->create([
+                    'ruta_foto' => $path,
+                    'descripcion' => null,
+                ]);
+            }
+        }
 
         return redirect()->route('cliente.vehiculos.index')
             ->with('success', 'Vehículo registrado exitosamente.');
@@ -98,6 +113,9 @@ class VehiculoController extends Controller
         $path = $request->file('foto')->store('vehiculos', 'public');
         $vehiculo->fotos()->create(['ruta_foto' => $path, 'descripcion' => $request->descripcion]);
 
+        // Recargar la colección de fotos
+        $vehiculo->load('fotos');
+
         return back()->with('success', 'Fotografía subida exitosamente.');
     }
 
@@ -105,6 +123,8 @@ class VehiculoController extends Controller
     {
         // Solo el dueño puede editar su vehículo
         abort_if($vehiculo->id_cliente !== $this->clienteId(), 403);
+
+        $vehiculo->load('fotos');
 
         return view('cliente.vehiculos.edit', compact('vehiculo'));
     }
@@ -143,3 +163,4 @@ class VehiculoController extends Controller
         return redirect()->route('cliente.vehiculos.show', $vehiculo)
             ->with('success', 'Vehículo actualizado exitosamente.');
     }
+}

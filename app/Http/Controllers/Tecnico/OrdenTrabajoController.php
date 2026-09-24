@@ -28,15 +28,23 @@ class OrdenTrabajoController extends Controller
 
     public function actualizarEstado(Request $request, OrdenTrabajo $ordene)
     {
+        // BUG #7 CORRECCIÓN: BAJO - Actualización redundante
+        // Solo actualizar campos que se proporcionan explícitamente
+        abort_if($ordene->id_usuario !== Auth::id(), 403, 'No autorizado para actualizar esta orden');
+
         $request->validate([
             'id_estado'    => 'required|exists:estados_ot,id_estado',
             'observaciones'=> 'nullable|string',
         ]);
 
-        $ordene->update([
-            'id_estado'     => $request->id_estado,
-            'observaciones' => $request->observaciones ?? $ordene->observaciones,
-        ]);
+        $dataToUpdate = ['id_estado' => $request->id_estado];
+        
+        // Solo actualizar observaciones si se proporciona
+        if ($request->filled('observaciones')) {
+            $dataToUpdate['observaciones'] = $request->observaciones;
+        }
+
+        $ordene->update($dataToUpdate);
 
         return back()->with('success', 'Estado de la orden actualizado correctamente.');
     }

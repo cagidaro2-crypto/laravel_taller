@@ -17,12 +17,19 @@ class DashboardController extends Controller
                 $q->whereNotIn('nombre', ['Terminado', 'Entregado', 'Cancelado'])
             )->count();
 
+        // BUG #6 CORRECCIÓN: MEDIO - Dashboard contador de citas sin filtrar
+        // Las citas de hoy SOLO deben contar las asignadas al técnico o sin asignar
         $citasHoy = Cita::whereDate('fecha', today())
             ->where('estado', '!=', 'Cancelado')
+            ->where(function($q) {
+                $q->where('id_usuario', Auth::id())
+                  ->orWhereNull('id_usuario');
+            })
             ->count();
 
         $vehiculosEnTaller = Vehiculo::whereHas('ordenesTrabajo', fn($q) =>
-            $q->whereHas('estado', fn($q2) =>
+            $q->where('id_usuario', Auth::id())
+              ->whereHas('estado', fn($q2) =>
                 $q2->whereNotIn('nombre', ['Terminado', 'Entregado', 'Cancelado'])
             )
         )->count();

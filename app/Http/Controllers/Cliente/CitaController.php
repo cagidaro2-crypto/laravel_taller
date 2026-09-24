@@ -50,6 +50,11 @@ class CitaController extends Controller
             'hora.required'        => 'Debe completar todos los campos obligatorios.',
         ]);
 
+        // BUG #12 CORRECCIÓN: Validar que el vehículo pertenezca al cliente
+        $vehiculo = Vehiculo::where('id_vehiculo', $request->id_vehiculo)
+            ->where('id_cliente', $this->clienteId())
+            ->firstOrFail();
+
         // TDLP-020 escenario 2: horario ocupado
         $ocupado = Cita::where('fecha', $request->fecha)
             ->where('hora', $request->hora)

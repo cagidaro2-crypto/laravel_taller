@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 
 class LoginController extends Controller
 {
@@ -19,67 +20,97 @@ class LoginController extends Controller
 
     public function login(Request $request)
     {
+        // 1. Validar entrada
         $request->validate([
             'correo'   => 'required|email',
-            'password' => 'required',
+            'password' => 'required|min:6',
         ], [
-            'correo.required'   => 'Los campos marcados son obligatorios.',
-            'correo.email'      => 'Ingrese un correo electrónico válido.',
-            'password.required' => 'Los campos marcados son obligatorios.',
+            'correo.required'   => 'El correo es requerido.',
+            'correo.email'      => 'El formato del correo no es válido.',
+            'password.required' => 'La contraseña es requerida.',
+            'password.min'      => 'La contraseña debe tener al menos 6 caracteres.',
         ]);
 
-        // RF-04: Bloqueo por 5 intentos fallidos
-        $key = 'login.' . Str::lower($request->correo) . '.' . $request->ip();
+        Log::info('Login attempt', [
+            'correo' => $request->correo,
+            'ip' => $request->ip(),
+        ]);
 
+        // 2. Rate limiting - 5 intentos en 15 minutos
+        $key = 'login_' . Str::lower($request->correo) . '_' . $request->ip();
+        
         if (RateLimiter::tooManyAttempts($key, 5)) {
             $seconds = RateLimiter::availableIn($key);
+            Log::warning('Rate limit excedido', ['correo' => $request->correo]);
+            
             return back()->withErrors([
-                'correo' => 'Cuenta bloqueada temporalmente. Intente en ' . ceil($seconds / 60) . ' minutos o recupere su contraseña.',
+                'correo' => 'Demasiados intentos. Intenta en ' . ceil($seconds / 60) . ' minutos.',
             ])->withInput($request->only('correo'));
         }
 
-        // Buscar usuario por correo
+        // 3. Buscar usuario
         $usuario = Usuario::where('correo', $request->correo)->first();
 
-        // RF-02/RF-03: Validar credenciales
+        // 4. Validar credenciales
         if (!$usuario || !Hash::check($request->password, $usuario->password)) {
             RateLimiter::hit($key, 900); // 15 minutos
-
+            Log::warning('Invalid credentials', ['correo' => $request->correo]);
+            
             return back()->withErrors([
-                'correo' => 'Correo o contraseña incorrectos. Verifique sus datos e intente nuevamente.',
+                'correo' => 'Correo o contraseña incorrectos.',
             ])->withInput($request->only('correo'));
         }
 
-        // Verificar que esté activo
+        // 5. Verificar que esté activo
         if (!$usuario->activo) {
+            Log::warning('Inactive user', ['usuario_id' => $usuario->id_usuario]);
+            
             return back()->withErrors([
-                'correo' => 'Esta cuenta está desactivada. Comuníquese con el administrador.',
+                'correo' => 'Tu cuenta está desactivada. Contacta al administrador.',
             ])->withInput($request->only('correo'));
         }
 
-        // Login exitoso
+        // 6. Cargar rol
+        $usuario->load('rol');
+        
+        if (!$usuario->rol) {
+            Log::error('User without role', ['usuario_id' => $usuario->id_usuario]);
+            
+            return back()->withErrors([
+                'correo' => 'Error en la configuración de tu cuenta.',
+            ])->withInput($request->only('correo'));
+        }
+
+        // 7. Login exitoso
         RateLimiter::clear($key);
         Auth::login($usuario, $request->boolean('remember'));
         $request->session()->regenerate();
 
-        // RF-05: Redirigir según rol
-        $role = $usuario->rol?->nombre_rol ?? null;
+        Log::info('Login successful', [
+            'usuario_id' => $usuario->id_usuario,
+            'correo' => $usuario->correo,
+            'rol' => $usuario->rol->nombre_rol,
+        ]);
 
-        return match ($role) {
-            'Administrador' => redirect()->intended(route('admin.dashboard')),
-            'Técnico', 'Empleado' => redirect()->intended(route('tecnico.dashboard')),
-            'Cliente'       => redirect()->intended(route('cliente.dashboard')),
-            default         => redirect('/'),
+        // 8. Redirigir según rol
+        $dashboard = match ($usuario->rol->nombre_rol) {
+            'Administrador' => 'admin.dashboard',
+            'Técnico', 'Empleado' => 'tecnico.dashboard',
+            'Cliente' => 'cliente.dashboard',
+            default => '/',
         };
+
+        return redirect()->route($dashboard)->with('success', '¡Bienvenido!');
     }
 
-    // RF-06: Cerrar sesión con confirmación (la confirmación es en la vista)
     public function logout(Request $request)
     {
+        Log::info('Logout', ['usuario_id' => Auth::id()]);
+        
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('login')->with('success', 'Sesión cerrada correctamente.');
+        return redirect()->route('login')->with('success', 'Sesión cerrada.');
     }
 }

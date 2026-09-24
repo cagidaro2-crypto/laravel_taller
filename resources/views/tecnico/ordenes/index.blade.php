@@ -35,7 +35,7 @@
                             </td>
                             <td class="px-6 py-4 text-sm text-slate-600">{{ $orden->fecha_ingreso->format('d/m/Y') }}</td>
                             <td class="px-6 py-4 text-sm">
-                                <a href="#" class="text-orange-600 hover:text-orange-700 font-semibold">Ver</a>
+                                <a href="{{ route('tecnico.ordenes.show', $orden) }}" class="text-blue-600 hover:text-blue-700 font-semibold">Ver</a>
                             </td>
                         </tr>
                     @endforeach

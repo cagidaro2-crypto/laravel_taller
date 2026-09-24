@@ -3,6 +3,9 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Route;
+use App\Models\Tecnico\OrdenTrabajo;
+use App\Models\Tecnico\ConsumoMaterial;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,6 +22,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Route Model Bindings
+        Route::model('ordene', OrdenTrabajo::class);
+        Route::model('consumo', ConsumoMaterial::class);
     }
 }

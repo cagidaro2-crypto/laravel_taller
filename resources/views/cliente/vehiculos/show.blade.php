@@ -67,9 +67,14 @@
                     <p class="text-slate-600 text-sm">No hay fotos subidas</p>
                 </div>
             @else
-                <div class="space-y-2">
+                <div class="grid grid-cols-1 gap-3 mb-4">
                     @foreach($vehiculo->fotos as $foto)
-                        <img src="{{ asset('storage/' . $foto->ruta_foto) }}" alt="Foto" class="w-full h-32 object-cover rounded-lg">
+                        <div class="relative group overflow-hidden rounded-lg border-2 border-slate-200 hover:border-orange-400 transition cursor-pointer" onclick="abrirFoto('{{ asset('storage/' . $foto->ruta_foto) }}')">
+                            <img src="{{ asset('storage/' . $foto->ruta_foto) }}" alt="Foto" class="w-full h-32 object-cover group-hover:scale-105 transition">
+                            <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition flex items-center justify-center">
+                                <span class="text-white text-sm font-semibold opacity-0 group-hover:opacity-100 transition">Ver</span>
+                            </div>
+                        </div>
                     @endforeach
                 </div>
             @endif
@@ -93,6 +98,27 @@
                 </button>
             </form>
         </div>
+
+        <!-- Modal para ver foto en grande -->
+        <div id="fotoModal" class="hidden fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4" onclick="cerrarFoto()">
+            <div class="relative max-w-2xl w-full" onclick="event.stopPropagation()">
+                <img id="fotoModalImg" src="" alt="Foto" class="w-full h-auto rounded-lg">
+                <button onclick="cerrarFoto()" class="absolute top-4 right-4 bg-red-500 hover:bg-red-600 text-white rounded-full w-10 h-10 flex items-center justify-center text-xl font-bold transition">
+                    ✕
+                </button>
+            </div>
+        </div>
+
+        <script>
+            function abrirFoto(src) {
+                document.getElementById('fotoModal').classList.remove('hidden');
+                document.getElementById('fotoModalImg').src = src;
+            }
+
+            function cerrarFoto() {
+                document.getElementById('fotoModal').classList.add('hidden');
+            }
+        </script>
     </div>
 
     <!-- Historial de Órdenes -->

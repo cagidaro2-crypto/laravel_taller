@@ -130,5 +130,25 @@
             </div>
         </div>
     </div>
+
+    <!-- Sección Materiales Consumidos -->
+    <div class="bg-orange-50 rounded-lg shadow p-6 mt-6">
+        <div class="flex justify-between items-center">
+            <div>
+                <h2 class="text-xl font-bold text-slate-900">Materiales Consumidos</h2>
+                <p class="text-sm text-slate-600 mt-1">
+                    @if($ordene->consumoMateriales->isEmpty())
+                        No hay materiales registrados aún
+                    @else
+                        {{ $ordene->consumoMateriales->count() }} material(es) registrado(s)
+                        • Total: <span class="font-bold text-orange-600">${{ number_format($ordene->consumoMateriales->sum('subtotal'), 2) }}</span>
+                    @endif
+                </p>
+            </div>
+            <a href="{{ route('tecnico.consumo-materiales.show', $ordene->id_orden) }}" class="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 font-semibold">
+                Gestionar Materiales
+            </a>
+        </div>
+    </div>
 </div>
 @endsection

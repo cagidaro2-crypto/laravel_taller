@@ -12,20 +12,32 @@
 
 <div class="bg-white rounded-2xl shadow-sm border border-slate-100">
     <div class="px-5 py-4 border-b border-slate-100">
-        <form method="GET" class="flex gap-3 flex-wrap">
-            <input type="text" name="buscar" placeholder="Nombre o código..." class="border border-slate-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400" value="{{ request('buscar') }}">
-            <select name="categoria" class="border border-slate-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400">
-                <option value="">Todas las categorías</option>
-                @foreach($categorias as $cat)
-                    <option value="{{ $cat->id_categoria }}" {{ request('categoria') == $cat->id_categoria ? 'selected':'' }}>{{ $cat->nombre }}</option>
-                @endforeach
-            </select>
-            <select name="activo" class="border border-slate-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400">
-                <option value="">Todos</option>
-                <option value="1" {{ request('activo') === '1' ? 'selected':'' }}>Activos</option>
-                <option value="0" {{ request('activo') === '0' ? 'selected':'' }}>Inactivos</option>
-            </select>
-            <button class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium px-4 py-2 rounded-xl">Filtrar</button>
+        <form method="GET" class="flex gap-3 flex-wrap items-end">
+            <div class="flex-1 min-w-xs">
+                <label class="block text-xs font-semibold text-slate-600 mb-2">Búsqueda</label>
+                <input type="text" name="buscar" placeholder="Nombre o código..." class="w-full border border-slate-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400" value="{{ request('buscar') }}">
+            </div>
+            <div class="flex-1 min-w-xs">
+                <label class="block text-xs font-semibold text-slate-600 mb-2">Categoría</label>
+                <select name="categoria" class="w-full border border-slate-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400">
+                    <option value="">✓ Todas las categorías ({{ $categorias->count() }})</option>
+                    @foreach($categorias as $cat)
+                        <option value="{{ $cat->id_categoria }}" {{ request('categoria') == $cat->id_categoria ? 'selected':'' }}>{{ $cat->nombre }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="flex-1 min-w-xs">
+                <label class="block text-xs font-semibold text-slate-600 mb-2">Estado</label>
+                <select name="activo" class="w-full border border-slate-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400">
+                    <option value="">Todos</option>
+                    <option value="1" {{ request('activo') === '1' ? 'selected':'' }}>Activos</option>
+                    <option value="0" {{ request('activo') === '0' ? 'selected':'' }}>Inactivos</option>
+                </select>
+            </div>
+            <div>
+                <button class="bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold px-6 py-2.5 rounded-xl transition">Filtrar</button>
+                <a href="{{ route('admin.productos.index') }}" class="inline-block ml-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-semibold px-4 py-2.5 rounded-xl transition">Limpiar</a>
+            </div>
         </form>
     </div>
 

@@ -157,7 +157,9 @@ class ReporteController extends Controller
         }
         
         // Crear CSV
+        // BUG #11 CORRECCIÓN: Agregar BOM UTF-8 para que Excel lea caracteres correctamente
         $csv = fopen('php://memory', 'r+');
+        fprintf($csv, chr(0xEF) . chr(0xBB) . chr(0xBF));  // UTF-8 BOM
         fputcsv($csv, $headers);
         foreach ($data as $row) {
             fputcsv($csv, $row);

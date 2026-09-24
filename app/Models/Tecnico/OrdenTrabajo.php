@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use App\Models\Admin\EstadoOt;
 use App\Models\Admin\Factura;
 use App\Models\Admin\Usuario;
+use App\Models\Tecnico\ConsumoMaterial;
 
 class OrdenTrabajo extends Model
 {
@@ -66,5 +67,26 @@ class OrdenTrabajo extends Model
     public function factura(): HasOne
     {
         return $this->hasOne(Factura::class, 'id_orden', 'id_orden');
+    }
+
+    public function consumoMateriales(): HasMany
+    {
+        return $this->hasMany(ConsumoMaterial::class, 'id_orden', 'id_orden');
+    }
+
+    // Calcular total de materiales gastados
+    public function getTotalMaterialesAttribute(): float
+    {
+        return $this->consumoMateriales->sum('subtotal');
+    }
+
+    // Calcular cuota a repararse
+    public function getCuotaReparosAttribute(): float
+    {
+        $totalServicios = $this->servicios->sum('valor_unitario') ?? 0;
+        $totalProductos = ($this->productos->sum('subtotal') ?? 0) + $this->total_materiales;
+        $impuesto = ($totalServicios + $totalProductos) * 0.19;
+        
+        return $totalServicios + $totalProductos + $impuesto;
     }
 }
