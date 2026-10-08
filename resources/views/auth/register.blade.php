@@ -24,10 +24,8 @@
         <!-- Logo Header -->
         <div class="text-center mb-8">
             <a href="{{ route('inicio') }}" class="inline-flex items-center gap-3 group">
-                <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center shadow-lg shadow-orange-500/30 group-hover:scale-105 transition-transform duration-300">
-                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z"/>
-                    </svg>
+                <div class="w-12 h-12 rounded-2xl bg-white flex items-center justify-center p-1 shadow-md group-hover:scale-105 transition-transform duration-300">
+                    <img src="{{ asset('img/logo.png') }}" alt="Logo" class="h-full w-auto object-contain">
                 </div>
                 <div class="text-left">
                     <span class="text-xl font-extrabold tracking-tight text-white block">Taller Latonería</span>
