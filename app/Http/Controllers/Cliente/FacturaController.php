@@ -123,3 +123,4 @@ class FacturaController extends Controller
             return response()->json(['message' => 'Error al procesar el pago: ' . $e->getMessage()], 500);
         }
     }
+}

@@ -39,9 +39,9 @@
                     <div class="bg-slate-50 rounded-xl p-4 mb-6 border border-slate-200">
                         <p class="text-xs text-slate-500 uppercase tracking-wide font-semibold mb-2">Transición de Estado del Vehículo</p>
                         <div class="flex items-center gap-3 text-sm">
-                            <span class="px-2.5 py-1 bg-slate-200 text-slate-700 rounded-lg font-medium">{{ $historialVehiculo->estado_anterior ?? 'Inicio' }}</span>
+                            <span class="px-2.5 py-1 bg-slate-200 text-slate-700 rounded-lg font-medium">{{ ($historialVehiculo->estado_anterior && $historialVehiculo->estado_anterior !== 'Desconocido') ? $historialVehiculo->estado_anterior : ($historialVehiculo->vehiculo?->estado?->nombre_estado ?? 'Ingresado') }}</span>
                             <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-                            <span class="px-2.5 py-1 bg-indigo-100 text-indigo-700 rounded-lg font-medium">{{ $historialVehiculo->estado_nuevo ?? 'Actual' }}</span>
+                            <span class="px-2.5 py-1 bg-indigo-100 text-indigo-700 rounded-lg font-medium">{{ ($historialVehiculo->estado_nuevo && $historialVehiculo->estado_nuevo !== 'Actual') ? $historialVehiculo->estado_nuevo : ($historialVehiculo->vehiculo?->estado?->nombre_estado ?? 'En proceso') }}</span>
                         </div>
                     </div>
                 @endif

@@ -16,6 +16,11 @@ class EstadoVehiculo extends Model
         'descripcion',
     ];
 
+    public function getNombreAttribute(): ?string
+    {
+        return $this->nombre_estado;
+    }
+
     public function vehiculos(): HasMany
     {
         return $this->hasMany(Vehiculo::class, 'id_estado', 'id_estado');

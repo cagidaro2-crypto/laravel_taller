@@ -173,6 +173,28 @@ class VentaController extends Controller
                         ]);
                     }
                 }
+
+                // Sincronizar compra con el historial del vehículo si tiene vehículo asignado
+                if ($request->filled('id_vehiculo')) {
+                    $vehiculo = \App\Models\Tecnico\Vehiculo::find($request->id_vehiculo);
+                    if ($vehiculo) {
+                        $nombres = collect($request->items)->map(function ($item) use ($productos) {
+                            $prod = $productos[$item['id_producto']] ?? null;
+                            return $prod ? "{$prod->nombre} (x{$item['cantidad']})" : null;
+                        })->filter()->join(', ');
+
+                        \App\Models\Tecnico\HistorialVehiculo::create([
+                            'id_vehiculo'     => $vehiculo->id_vehiculo,
+                            'id_usuario'      => Auth::id(),
+                            'fecha'           => $request->fecha,
+                            'descripcion'     => 'Compra de repuestos/productos: ' . ($nombres ?: "Venta #{$venta->id_venta}"),
+                            'valor'           => $total,
+                            'estado'          => 'Completada',
+                            'estado_anterior' => $vehiculo->estado?->nombre_estado ?? 'Activo',
+                            'estado_nuevo'    => $vehiculo->estado?->nombre_estado ?? 'Activo',
+                        ]);
+                    }
+                }
             });
 
             return redirect()->route('tecnico.ventas.index')

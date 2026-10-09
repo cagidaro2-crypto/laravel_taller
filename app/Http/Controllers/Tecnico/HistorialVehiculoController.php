@@ -14,8 +14,10 @@ class HistorialVehiculoController extends Controller
     {
         // BUG #4: Filtrar historial solo para vehículos con órdenes del técnico
         $historial = HistorialVehiculo::with(['vehiculo.cliente.usuario', 'usuario'])
-            ->whereHas('vehiculo.ordenesTrabajo', function($q) {
-                $q->where('id_usuario', Auth::id());
+            ->where(function($q) {
+                $q->whereHas('vehiculo.ordenesTrabajo', function($sq) {
+                    $sq->where('id_usuario', Auth::id());
+                })->orWhere('id_usuario', Auth::id());
             })
             ->orderByDesc('fecha')
             ->paginate(20);
@@ -25,9 +27,9 @@ class HistorialVehiculoController extends Controller
 
     public function show(HistorialVehiculo $historialVehiculo)
     {
-        // BUG #4: Verificar autorización
-        abort_if(!$historialVehiculo->vehiculo->ordenesTrabajo()
-            ->where('id_usuario', Auth::id())->exists(), 403);
+        $autorizado = $historialVehiculo->id_usuario === Auth::id() || 
+            ($historialVehiculo->vehiculo && $historialVehiculo->vehiculo->ordenesTrabajo()->where('id_usuario', Auth::id())->exists());
+        abort_if(!$autorizado, 403);
         
         $historialVehiculo->load(['vehiculo.cliente.usuario', 'usuario']);
         

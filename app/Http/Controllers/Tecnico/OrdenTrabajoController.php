@@ -73,22 +73,23 @@ class OrdenTrabajoController extends Controller
         ]);
 
         $vehiculo = $ordene->vehiculo;
-        $estadoAnterior = $vehiculo->estado->nombre ?? 'Desconocido';
+        $estadoAnterior = $vehiculo->estado?->nombre_estado ?? $vehiculo->estado?->nombre ?? 'Ingresado';
 
         // Actualizar estado del vehículo
         $vehiculo->update(['id_estado' => $request->id_estado_vehiculo]);
 
-        $estadoNuevo = $vehiculo->refresh()->estado->nombre;
+        $estadoNuevo = $vehiculo->refresh()->estado?->nombre_estado ?? $vehiculo->estado?->nombre ?? 'En proceso';
 
         // Registrar en historial (si existe HistorialVehiculo)
         if (method_exists($vehiculo, 'historial')) {
+            $valorReal = ($ordene->total > 0) ? $ordene->total : (($ordene->subtotal > 0) ? $ordene->subtotal : 0);
             $vehiculo->historial()->create([
                 'estado_anterior' => $estadoAnterior,
                 'estado_nuevo'    => $estadoNuevo,
                 'descripcion'     => $request->descripcion ?? 'Cambio de estado de vehículo',
                 'id_usuario'      => Auth::id(),
                 'fecha'           => now()->toDateString(),
-                'valor'           => 0,
+                'valor'           => $valorReal,
             ]);
         }
 

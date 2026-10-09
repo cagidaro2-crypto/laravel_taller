@@ -52,9 +52,10 @@ class VentaController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'id_cliente' => 'required|exists:clientes,id_cliente',
-            'fecha'      => 'required|date',
-            'items'      => 'required|array|min:1',
+            'id_cliente'  => 'required|exists:clientes,id_cliente',
+            'id_vehiculo' => 'nullable|exists:vehiculos,id_vehiculo',
+            'fecha'       => 'required|date',
+            'items'       => 'required|array|min:1',
             'items.*.id_producto' => 'required|exists:productos,id_producto',
             'items.*.cantidad'    => 'required|integer|min:1',
         ], [
@@ -75,25 +76,28 @@ class VentaController extends Controller
 
         DB::transaction(function () use ($request) {
             $subtotal = 0;
+            $productos = Producto::whereIn('id_producto', collect($request->items)->pluck('id_producto'))->get()->keyBy('id_producto');
+
             foreach ($request->items as $item) {
-                $prod      = Producto::find($item['id_producto']);
+                $prod      = $productos[$item['id_producto']];
                 $subtotal += $prod->precio_venta * $item['cantidad'];
             }
             $impuesto = $subtotal * 0.19;
             $total    = $subtotal + $impuesto;
 
             $venta = Venta::create([
-                'id_cliente' => $request->id_cliente,
-                'id_usuario' => Auth::id(),
-                'fecha'      => $request->fecha,
-                'subtotal'   => $subtotal,
-                'impuesto'   => $impuesto,
-                'total'      => $total,
-                'estado'     => 'Completada',
+                'id_cliente'  => $request->id_cliente,
+                'id_vehiculo' => $request->id_vehiculo,
+                'id_usuario'  => Auth::id(),
+                'fecha'       => $request->fecha,
+                'subtotal'    => $subtotal,
+                'impuesto'    => $impuesto,
+                'total'       => $total,
+                'estado'      => 'Completada',
             ]);
 
             foreach ($request->items as $item) {
-                $prod = Producto::find($item['id_producto']);
+                $prod = $productos[$item['id_producto']];
                 DetalleVenta::create([
                     'id_venta'       => $venta->id_venta,
                     'id_producto'    => $item['id_producto'],
@@ -107,10 +111,55 @@ class VentaController extends Controller
                 $inv->decrement('cantidad', $item['cantidad']);
                 $inv->update(['ultima_actualizacion' => now()]);
             }
+
+            // Sincronizar compra con el historial del vehículo si tiene vehículo asignado
+            if ($request->filled('id_vehiculo')) {
+                $vehiculo = \App\Models\Tecnico\Vehiculo::find($request->id_vehiculo);
+                if ($vehiculo) {
+                    $nombres = collect($request->items)->map(function ($item) use ($productos) {
+                        $prod = $productos[$item['id_producto']] ?? null;
+                        return $prod ? "{$prod->nombre} (x{$item['cantidad']})" : null;
+                    })->filter()->join(', ');
+
+                    \App\Models\Tecnico\HistorialVehiculo::create([
+                        'id_vehiculo'     => $vehiculo->id_vehiculo,
+                        'id_usuario'      => Auth::id(),
+                        'fecha'           => $request->fecha,
+                        'descripcion'     => 'Compra de repuestos/productos: ' . ($nombres ?: "Venta #{$venta->id_venta}"),
+                        'valor'           => $total,
+                        'estado'          => 'Completada',
+                        'estado_anterior' => $vehiculo->estado?->nombre_estado ?? 'Activo',
+                        'estado_nuevo'    => $vehiculo->estado?->nombre_estado ?? 'Activo',
+                    ]);
+                }
+            }
         });
 
         return redirect()->route('admin.ventas.index')
             ->with('success', 'Venta registrada exitosamente.');
+    }
+
+    /**
+     * Obtener vehículos de un cliente para AJAX
+     */
+    public function getVehiculosCliente($idCliente)
+    {
+        try {
+            $vehiculos = \App\Models\Tecnico\Vehiculo::where('id_cliente', $idCliente)
+                ->with('estado')
+                ->get(['id_vehiculo', 'placa', 'marca', 'modelo', 'id_estado'])
+                ->map(function ($v) {
+                    return [
+                        'id_vehiculo' => $v->id_vehiculo,
+                        'placa'       => $v->placa,
+                        'label'       => "{$v->placa} - {$v->marca} {$v->modelo} (" . ($v->estado?->nombre_estado ?? 'Activo') . ")"
+                    ];
+                });
+
+            return response()->json(['success' => true, 'data' => $vehiculos]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Error al cargar vehículos'], 500);
+        }
     }
 
     public function show(Venta $venta)

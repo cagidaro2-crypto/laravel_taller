@@ -53,6 +53,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:Administrador'
     Route::post('facturas/{factura}/pago', [FacturaController::class, 'registrarPago'])->name('facturas.pago');
 
     // RF-74 al RF-79: Ventas
+    Route::get('ventas/get-vehiculos/{idCliente}', [VentaController::class, 'getVehiculosCliente'])->name('ventas.get-vehiculos');
     Route::resource('ventas', VentaController::class)->except(['edit', 'update', 'destroy']);
     Route::patch('ventas/{venta}/anular', [VentaController::class, 'anular'])->name('ventas.anular');
 

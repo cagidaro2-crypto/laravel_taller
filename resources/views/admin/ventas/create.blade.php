@@ -13,7 +13,7 @@
         @csrf
 
         {{-- Datos generales --}}
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
                 <label class="block text-sm font-medium text-slate-700 mb-2">Cliente <span class="text-red-500">*</span></label>
                 <select name="id_cliente" id="selectCliente" class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 @error('id_cliente') border-red-500 @enderror" required>
@@ -23,6 +23,14 @@
                     @endforeach
                 </select>
                 @error('id_cliente') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-slate-700 mb-2">Vehículo (Opcional)</label>
+                <select name="id_vehiculo" id="selectVehiculo" class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 disabled:bg-slate-100 disabled:cursor-not-allowed">
+                    <option value="">Seleccione un cliente primero</option>
+                </select>
+                @error('id_vehiculo') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
             </div>
 
             <div>
@@ -161,6 +169,47 @@ function recalcularTotal() {
 // Inicializar listeners en la primera fila
 document.querySelectorAll('.item-row').forEach(row => attachItemListeners(row));
 recalcularTotal();
+
+// Carga dinámica de vehículos según cliente seleccionado
+const selectCliente = document.getElementById('selectCliente');
+const selectVehiculo = document.getElementById('selectVehiculo');
+
+selectCliente?.addEventListener('change', async function() {
+    const idCliente = this.value;
+    if (!idCliente) {
+        selectVehiculo.innerHTML = '<option value="">Seleccione un cliente primero</option>';
+        selectVehiculo.disabled = true;
+        return;
+    }
+
+    selectVehiculo.innerHTML = '<option value="">Cargando vehículos...</option>';
+    selectVehiculo.disabled = true;
+
+    try {
+        const res = await fetch(`{{ url('admin/ventas/get-vehiculos') }}/${idCliente}`);
+        const data = await res.json();
+        if (data.success && data.data && data.data.length > 0) {
+            selectVehiculo.innerHTML = '<option value="">Seleccione vehículo (opcional)</option>';
+            data.data.forEach(v => {
+                const opt = document.createElement('option');
+                opt.value = v.id_vehiculo;
+                opt.textContent = v.label;
+                selectVehiculo.appendChild(opt);
+            });
+            selectVehiculo.disabled = false;
+        } else {
+            selectVehiculo.innerHTML = '<option value="">Este cliente no tiene vehículos registrados</option>';
+            selectVehiculo.disabled = true;
+        }
+    } catch (e) {
+        selectVehiculo.innerHTML = '<option value="">Sin vehículos disponibles</option>';
+        selectVehiculo.disabled = true;
+    }
+});
+
+if (selectCliente?.value) {
+    selectCliente.dispatchEvent(new Event('change'));
+}
 </script>
 @endpush
 @endsection

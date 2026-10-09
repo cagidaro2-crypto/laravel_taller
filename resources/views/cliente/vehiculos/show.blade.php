@@ -157,25 +157,32 @@
         @endif
     </div>
 
-    <!-- Historial de Ventas -->
+    <!-- Historial de Ventas / Compras del Vehículo -->
     @php
         $ventas = $vehiculo->ventas ?? collect();
     @endphp
     <div class="bg-white rounded-xl shadow p-6">
-        <h2 class="text-xl font-bold text-slate-900 mb-4">Productos Vendidos</h2>
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-xl font-bold text-slate-900">Compras de Repuestos y Productos</h2>
+            @if($ventas->isNotEmpty())
+                <span class="text-sm font-semibold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
+                    Total Acumulado: ${{ number_format($ventas->sum('total'), 2, '.', ',') }}
+                </span>
+            @endif
+        </div>
         
         @if($ventas->isEmpty())
-            <p class="text-slate-600">No hay ventas registradas para este vehículo</p>
+            <p class="text-slate-600">No hay compras registradas para este vehículo</p>
         @else
             <div class="overflow-x-auto">
                 <table class="w-full">
                     <thead class="bg-slate-100 border-b">
                         <tr>
-                            <th class="px-4 py-3 text-left text-sm font-semibold text-slate-900">#Venta</th>
+                            <th class="px-4 py-3 text-left text-sm font-semibold text-slate-900">#Compra</th>
                             <th class="px-4 py-3 text-left text-sm font-semibold text-slate-900">Fecha</th>
-                            <th class="px-4 py-3 text-left text-sm font-semibold text-slate-900">Productos</th>
+                            <th class="px-4 py-3 text-left text-sm font-semibold text-slate-900">Productos Adquiridos</th>
                             <th class="px-4 py-3 text-left text-sm font-semibold text-slate-900">Total</th>
-                            <th class="px-4 py-3 text-left text-sm font-semibold text-slate-900">Técnico</th>
+                            <th class="px-4 py-3 text-left text-sm font-semibold text-slate-900">Atendido por</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-200">
@@ -183,9 +190,16 @@
                             <tr class="hover:bg-slate-50 transition">
                                 <td class="px-4 py-3 font-semibold text-slate-900">#{{ $venta->id_venta }}</td>
                                 <td class="px-4 py-3 text-slate-600">{{ $venta->fecha->format('d/m/Y') }}</td>
-                                <td class="px-4 py-3 text-slate-600 text-sm">{{ $venta->detalles->count() }} producto(s)</td>
-                                <td class="px-4 py-3 font-semibold text-green-600">${{ number_format($venta->total, 2, '.', ',') }}</td>
-                                <td class="px-4 py-3 text-slate-600 text-sm">{{ $venta->usuario->nombre ?? 'N/A' }}</td>
+                                <td class="px-4 py-3 text-slate-700 text-sm">
+                                    <span class="font-medium text-slate-900">{{ $venta->detalles->count() }} producto(s)</span>
+                                    @if($venta->detalles->isNotEmpty())
+                                        <div class="text-xs text-slate-500 mt-0.5">
+                                            {{ $venta->detalles->map(fn($d) => ($d->producto?->nombre ?? 'Producto') . ' (x' . $d->cantidad . ')')->join(', ') }}
+                                        </div>
+                                    @endif
+                                </td>
+                                <td class="px-4 py-3 font-bold text-emerald-600">${{ number_format($venta->total, 2, '.', ',') }}</td>
+                                <td class="px-4 py-3 text-slate-600 text-sm">{{ $venta->usuario->nombre ?? 'Personal del taller' }}</td>
                             </tr>
                         @endforeach
                     </tbody>
